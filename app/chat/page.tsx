@@ -1,7 +1,7 @@
 'use client'
 import { Session } from '@supabase/supabase-js';
 import {supabase} from '../supabase-client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 interface ChatMessage {
     message_id: string;
@@ -19,6 +19,7 @@ const ChatHistory = () => {
     const [prompts, setPrompts] = useState<ChatMessage[]>([]);
     const [session, setSession] = useState<Session | null>(null);
     const [isLoading, setIsLoading] = useState(false)
+    const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
     const fetchPrompts = async () => {
         const {error, data} = await supabase.from("chat_messages").select('*').order("created_at", {ascending: true})
@@ -31,25 +32,55 @@ const ChatHistory = () => {
         console.log("Fetched prompts: ", data)
     }
 
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })  
+    }
+
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
             setSession(session)
         })
+        fetchPrompts()
     }, [])
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [prompts]);
 
     const handleSubmit = async (event: React.ChangeEvent<HTMLFormElement>) => {
         event.preventDefault()
-
-        setNewPrompt({content: ''})
 
         if (!newPrompt.content.trim()) {
             console.warn("Prompt is empty. Please enter a prompt.")
             return
         }
-        setIsLoading(true)
         console.log('Prompt:', newPrompt.content)
+        setNewPrompt({content: ''})
+        setIsLoading(true)
 
         let responseText = ''
+
+        try {
+            if (!session || !session.user || !session?.user?.id) {
+                console.error("No user ID found in session", session?.user.id)
+                console.log('Session:', session)
+                setIsLoading(false)
+                return
+            }
+
+            const newUserMessage: NewChatMessage = {
+                // session_id: 'session-id',
+                user_id: session.user.id,
+                sender: 'user',
+                content: newPrompt.content
+            }
+
+            await supabase.from("chat_messages").insert(newUserMessage).throwOnError()
+            console.log("Inserted user message: ", newUserMessage)
+            await fetchPrompts()    
+        } catch (error) {
+            console.error("Error inserting prompt:", error)
+        }
     
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`, {
@@ -79,15 +110,6 @@ const ChatHistory = () => {
                 setIsLoading(false)
                 return
             }
-            
-            const newUserMessage: NewChatMessage = {
-                // session_id: 'session-id',
-                user_id: session.user.id,
-                sender: 'user',
-                content: newPrompt.content
-            }
-
-            const messageToInsert: NewChatMessage[] = [newUserMessage]
 
             if (responseText) {
                 const newModelMessage: NewChatMessage = {
@@ -96,27 +118,20 @@ const ChatHistory = () => {
                     sender: 'model',
                     content: responseText
                 }
-                messageToInsert.push(newModelMessage)
-            }            
-
-            console.log("Inserting messages: ", messageToInsert)
-
-            await supabase.from("chat_messages").insert(messageToInsert).throwOnError()
+                await supabase.from("chat_messages").insert(newModelMessage).throwOnError()
+                console.log("Inserted model message: ", newModelMessage)
+            }
             await fetchPrompts()            
-              
         } catch (err) {
             console.error("Error inserting message: ", err)
         } finally {
             setIsLoading(false)
         }
     }
-    useEffect(() => {
-        fetchPrompts()
-    }, [])
 
     return (
         <div className = 'flex flex-col h-screen bg-gray-900'>
-            <div className = 'flex-1 overflow-y-auto p-4 pb-24'>
+            <div className = 'flex-1 overflow-y-auto p-4 pb-6'>
                 <div className = 'max-w-4xl mx-auto space-y-4'>
                     {prompts.map((prompt) => (
                         <div 
@@ -142,6 +157,7 @@ const ChatHistory = () => {
                             </div>
                         </div>
                     )}
+                <div ref={messagesEndRef} />
                 </div>
             </div>
             
