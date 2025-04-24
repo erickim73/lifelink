@@ -1,61 +1,70 @@
 'use client'
-import React, {useState} from 'react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { supabase } from './supabase-client';
+import type {Session} from '@supabase/supabase-js'
 
 export default function Home() {
+    const [session, setSession] = useState<Session | null>(null)
 
-    const [prompt, setPrompt] = useState<string>('');
-    const [response, setResponse] = useState<string>('');
-
-    const handlePromptChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setPrompt(event.target.value)
-    }
-
-    const handleSubmit = async (event: React.ChangeEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        console.log('Prompt:', prompt)
-
-        try {
-            const res = await fetch('http://127.0.0.1:8080/chat', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    prompt: prompt
-                })
-            })
-
-            const data = await res.json()
-            setResponse(data.response)
-            console.log('Response:', data.response)
-        } catch (err) {
-            console.error('Error:', err)
+    useEffect(() => {
+        const fetchSession = async () => {const {data: {session}} = await supabase.auth.getSession()
+            setSession(session)
         }
+        fetchSession()
+
+        const {data: {subscription}} = supabase.auth.onAuthStateChange((event, session) => {
+            setSession(session)
+            console.log("Auth event:", event)
+        })
+
+        return () => subscription.unsubscribe()
+
+
+    }, [])
+
+    const logout = async () => {
+        await supabase.auth.signOut();
+        console.log("Logged out")
+        console.log(session)
     }
+
+    useEffect (() => {
+        console.log("Session changed:", session)
+    }, [session])
 
     return (
         <div>
-            <form onSubmit = {handleSubmit}>
-                <div>
-                    <label>Prompt:</label>
-                    <input 
-                        type = 'text' 
-                        value={prompt} 
-                        onChange={handlePromptChange} 
-                        className = 'border border-gray-300 rounded bg-white text-black w-3xl'
-                    />
-                </div>
+            <h1 className='text-3xl'>Main Page</h1>
 
-                <button 
-                    type = 'submit'
-                    className = 'border border-white rounded px-2'
-                >Submit</button>
-            </form>
-            <div>
-                <p className = 'text-white'>{response}</p>
-            </div>
-        </div>        
-    );
+            {session ? (
+                <>
+                    <Link href = '/chat'>
+                        <button className='border border-white p-3 rounded-2xl'>
+                            Chat
+                        </button>
+                    </Link>
+                    <button onClick={logout} className='border border-white p-3 rounded-2xl'>
+                        Log Out
+                    </button>
+                </>
+            ) : (
+                <>
+                    <Link href = '/signup'>
+                        <button className='border border-white p-3 rounded-2xl'>
+                            Sign up page
+                        </button>
+                    </Link>
+
+                    <Link href = '/login'>
+                        <button className='border border-white p-3 rounded-2xl'>
+                            Login page
+                        </button>
+                    </Link>
+                </>
+            )}
+        </div>
+    )
+    
 }
 
