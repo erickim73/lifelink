@@ -1,62 +1,83 @@
 'use client'
+
 import React, { useEffect, useState } from 'react'
 import { Session } from '@supabase/supabase-js';
-import {supabase} from '../supabase-client'
-import ChatWindow from './ChatWindow';
-import MessageInput from './MessageInput'
-import useChatSession from './useChatSession';
-import {ChatMessage, NewChatMessage} from './props'
+import {supabase} from '../../lib/supabase-client'
+import ChatWindow from '../../components/ChatWindow';
+import MessageInput from '../../components/MessageInput'
+import {ChatMessage, NewChatMessage} from '../../components/props'
 
-
-const ChatPage = () => {
-    const [session, setSession] = useState<Session | null>(null)
+export default function ChatDetail({sessionId}: {sessionId: string}) {
+    const [authSession, setAuthSession] = useState<Session | null>(null)
     const [prompts, setPrompts] = useState<ChatMessage[]>([])
     const [newPrompt, setNewPrompt] = useState({content: ''})
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
-            setSession(session)
+            setAuthSession(session)
         })
     }, [])
 
-    const chatSessionId = useChatSession(session)
-
-    useEffect(() => {
-        if (!chatSessionId) {
-            console.log("No chat session ID")
+    useEffect(() => {        
+        if (!sessionId) {
+            console.log("No session ID provided")
             return
         }
 
-        supabase.from('chat_messages').select('*').eq('session_id', chatSessionId).order('created_at').then(({data, error}) => {
-            if (!error) {
-                setPrompts(data as ChatMessage[])
-            } else {
-                console.error("Error fetching chat messages: ", error.message)
-            }
-        })
-    }, [chatSessionId])    
+        try {
+            supabase.from('chat_messages').select('*').eq('session_id', sessionId).order('created_at').then(({data, error}) => {
+                if (!error) {
+                    setPrompts(data as ChatMessage[])
+                } else {
+                    console.error("Error fetching chat messages: ", error.message)
+                }
+            })
+        } catch (error) {
+            console.error("Error fetching chat session: ", error)
+        }
+    }, [sessionId])
 
+    useEffect(() => {
+        const channel = supabase.channel('realtime_chat').on('postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'chat_messages',
+              filter: `session_id=eq.${sessionId}`
+            },
+            (payload) => {
+              const newMsg = payload.new as ChatMessage
+              setPrompts((prev) => [...prev, newMsg])
+            }
+        ).subscribe()
+    
+        return () => {
+          supabase.removeChannel(channel)
+        }
+      }, [sessionId])
+
+    
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         setNewPrompt({content: ''})
         console.log("Submitting prompt:", newPrompt.content)
 
-        if (!newPrompt.content.trim() || !session?.user.id || !chatSessionId) {
+        if (!newPrompt.content.trim() || !authSession?.user.id || !sessionId) {
             console.log("Prompt is empty or session/user ID is not available. Cannot submit prompt.")
-            console.log("Session:", session)
-            console.log("Chat Session ID:", chatSessionId)
+            console.log("Session:", authSession)
+            console.log("Chat Session ID:", sessionId)
             return
         }
 
         console.log('Prompt:', newPrompt.content)
         setIsLoading(true)
-        const user_id = session.user.id
+        const user_id = authSession.user.id
 
 
         try {
             const newUserMessage: NewChatMessage = {
-                session_id: chatSessionId,
+                session_id: sessionId,
                 user_id: user_id,
                 sender: 'user',
                 content: newPrompt.content
@@ -82,8 +103,8 @@ const ChatPage = () => {
 
             if (data.response) {
                 const newModelMessage: NewChatMessage = {
-                    session_id: chatSessionId,
-                    user_id: session.user.id,
+                    session_id: sessionId,
+                    user_id: authSession.user.id,
                     sender: 'model',
                     content: data.response
                 }
@@ -110,6 +131,3 @@ const ChatPage = () => {
         </div>
     )
 }
-
-
-export default ChatPage

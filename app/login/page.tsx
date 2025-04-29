@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { supabase } from "../supabase-client";
+import { supabase } from "../lib/supabase-client";
 import { useRouter } from 'next/navigation';
 import { Session } from '@supabase/supabase-js';
 
@@ -24,29 +24,30 @@ const Login = () => {
         })
 
         return () => subscription.unsubscribe()
-
-
     }, [])
     
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        const {error} = await supabase.auth.signInWithPassword({email, password})
-        if (!session?.user?.id) {
+        const {data, error} = await supabase.auth.signInWithPassword({email, password})
+
+        if (error) {
+            console.error("Error signing in:", error.message)
+            return
+        }
+
+        const signedInSesssion = data.session
+
+        if (!signedInSesssion?.user?.id) {
             console.error("No user ID found in session")
+            console.log("Error signing in with email:", email, "and password", password)
             console.log(session)
             return
-        } else {
-            console.log("User ID:", session.user.id)
-        }
-        if (error) {
-            console.error("Error signing up:", error.message)
-            return 
-        } else {
-            console.log("Logged in successfully")
-            router.push('/')
-        }
+        } 
+
+        console.log("Successfully signed in with user ID:", signedInSesssion.user.id)
+        router.push('/')
     }
 
     return (

@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { supabase } from './supabase-client';
+import { supabase } from './lib/supabase-client';
 import type {Session} from '@supabase/supabase-js'
 
 export default function Home() {
@@ -16,6 +16,7 @@ export default function Home() {
         const {data: {subscription}} = supabase.auth.onAuthStateChange((event, session) => {
             setSession(session)
             console.log("Auth event:", event)
+            console.log("Session", session)
         })
 
         return () => subscription.unsubscribe()
@@ -26,12 +27,7 @@ export default function Home() {
     const logout = async () => {
         await supabase.auth.signOut();
         console.log("Logged out")
-        console.log(session)
     }
-
-    useEffect (() => {
-        console.log("Session changed:", session)
-    }, [session])
 
     return (
         <div>

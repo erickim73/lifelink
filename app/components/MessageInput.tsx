@@ -15,7 +15,7 @@ const MessageInput: React.FC<MessageInputProps> = ({value, isLoading, onChange, 
                 <div className='flex gap-2'>
                     <input
                         type = 'text'
-                        placeholder='Type your message here...'
+                        placeholder='Ask anything'
                         value={value}
                         onChange={onChange}
                         className="flex-1 border border-gray-600 bg-gray-700 rounded-full text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
