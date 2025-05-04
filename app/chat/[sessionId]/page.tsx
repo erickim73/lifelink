@@ -6,8 +6,8 @@ type ChatHistoryProps = {
     }
 }
 
-export default async function ChatHistory({params}: ChatHistoryProps) {
-    const {sessionId} = params
+export default async function ChatHistory(props: ChatHistoryProps) {
+    const sessionId = props.params.sessionId
 
     return (
         <main className = 'h-screen w-full'>

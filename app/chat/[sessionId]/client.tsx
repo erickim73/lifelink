@@ -41,21 +41,21 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
     useEffect(() => {
         const channel = supabase.channel('realtime_chat').on('postgres_changes',
             {
-              event: 'INSERT',
-              schema: 'public',
-              table: 'chat_messages',
-              filter: `session_id=eq.${sessionId}`
+                event: 'INSERT',
+                schema: 'public',
+                table: 'chat_messages',
+                filter: `session_id=eq.${sessionId}`
             },
             (payload) => {
-              const newMsg = payload.new as ChatMessage
-              setPrompts((prev) => [...prev, newMsg])
+                const newMsg = payload.new as ChatMessage
+                setPrompts((prev) => [...prev, newMsg])
             }
         ).subscribe()
     
         return () => {
-          supabase.removeChannel(channel)
+            supabase.removeChannel(channel)
         }
-      }, [sessionId])
+    }, [sessionId])
 
     
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -120,7 +120,7 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
     }
 
     return (
-        <div className = 'flex flex-col h-screen bg-gray-900'>
+        <div className = 'flex flex-col h-screen'>
             <ChatWindow prompts={prompts} isLoading={isLoading}/>
             <MessageInput
                 value={newPrompt.content}
