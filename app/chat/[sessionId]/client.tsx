@@ -5,7 +5,7 @@ import { Session } from '@supabase/supabase-js';
 import {supabase} from '../../lib/supabase-client'
 import ChatWindow from '../../components/ChatWindow';
 import MessageInput from '../../components/MessageInput'
-import {ChatMessage, NewChatMessage} from '../../components/props'
+import {ChatMessage, NewChatMessage} from '../../lib/types'
 
 export default function ChatDetail({sessionId}: {sessionId: string}) {
     const [authSession, setAuthSession] = useState<Session | null>(null)

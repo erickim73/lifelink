@@ -8,20 +8,24 @@ import { NewChat } from "./new-chat";
 import { supabase } from "@/app/lib/supabase-client";
 import {Session} from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
-import { ChatSession } from "@/app/components/props";
+import { ChatSession } from "@/app/lib/types";
 import Link from "next/link";  
+import { usePathname } from "next/navigation";
 
 // This is sample data.
 const data = {
-  user: {
-    name: "Eric Kim",
-    email: "seyoon2006@gmail.com",
-    avatar: "/avatars/shadcn.jpg",
-  }
+    user: {
+        name: "Eric Kim",
+        email: "seyoon2006@gmail.com",
+        avatar: "/avatars/shadcn.jpg",
+    }
 }
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const [chatSessionIds, setChatSessionIds] = useState<ChatSession[]>([])
     const [sessionId, setSessionId] = useState<Session | null>(null)
+    const pathname = usePathname()
+
+    const isOnboarding = pathname === '/onboarding'
 
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
@@ -74,6 +78,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }, [sessionId])
     
     const { state } = useSidebar();
+
+    if (isOnboarding) return null
 
     return (
         <Sidebar collapsible="icon" {...props}>
