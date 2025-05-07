@@ -39,3 +39,10 @@ export interface UserFormData {
     healthGoals: string;    
     consentToUseData: boolean;
 }
+
+export interface UserProfile {
+    name: string;
+    email: string;
+    initials: string;
+
+}

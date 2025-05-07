@@ -11,18 +11,13 @@ import { useState, useEffect } from "react";
 import { ChatSession } from "@/app/lib/types";
 import Link from "next/link";  
 import { usePathname } from "next/navigation";
+import { UserProfile } from '../app/lib/types';
 
-// This is sample data.
-const data = {
-    user: {
-        name: "Eric Kim",
-        email: "seyoon2006@gmail.com",
-        avatar: "/avatars/shadcn.jpg",
-    }
-}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const [chatSessionIds, setChatSessionIds] = useState<ChatSession[]>([])
     const [sessionId, setSessionId] = useState<Session | null>(null)
+    const [userData, setUserData] = useState<UserProfile | null>(null)
     const pathname = usePathname()
 
     const isOnboarding = pathname === '/onboarding'
@@ -48,14 +43,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         try {
             supabase.from('chat_sessions').select('*').eq('user_id', sessionId?.user.id).order('created_at', {ascending: false}).then(({data, error}) => {
-                if (!error) {
-                    setChatSessionIds(data || []);
-                } else {
-                    console.error("Error fetching chat sessions: ", error.message)
+                if (error) {
+                    console.error("Error fetching chat session: ", error)
                 }
+                setChatSessionIds(data || []);
+            })
+
+            supabase.from('profiles').select('first_name, last_name').eq('user_id', sessionId?.user.id).single().then(({data, error}) => {
+                if (error) {
+                    console.error("Error fetching user profile: ", error)
+                    return
+                }
+
+                const profile: UserProfile = {
+                    name: `${data.first_name} ${data.last_name}`,
+                    email: sessionId.user.email || "",
+                    initials: `${data.first_name[0]}${data.last_name[0]}`.toUpperCase(),
+
+                }
+
+                setUserData(profile)
             })
         } catch (error) {
-            console.error("Error fetching chat session: ", error)
+            console.error("Error fetching chat session or user profile: ", error)
         }
     }, [sessionId])
 
@@ -125,7 +135,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarContent>
 
         <SidebarFooter>
-            <NavUser user={data.user} />
+            {userData && <NavUser user={userData} />}
         </SidebarFooter>
 
         <SidebarRail />
