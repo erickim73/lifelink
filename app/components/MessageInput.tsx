@@ -27,7 +27,7 @@ const MessageInput: React.FC<MessageInputProps> = ({value, isLoading, onChange, 
     }, [value])
 
     return (
-        <div className = 'border-t border-gray-700 bg-gray-800 p-4'>
+        <div className = 'border-t border-gray-700 bg-gray-800 p-4 w-full'>
             <form onSubmit = {onSubmit} className = 'max-w-6xl mx-auto'>
                 <div className='flex gap-2 items-end'>
                     <div className="flex-1 relative">

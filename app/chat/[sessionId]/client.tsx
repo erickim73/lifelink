@@ -87,10 +87,10 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
             console.log("Inserted user message: ", newUserMessage)
             setPrompts((p) => [...p, {...newUserMessage, message_id: crypto.randomUUID(), created_at: new Date().toISOString()}])
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/stream`, {
                 method: 'POST',
                 headers: {
-                    'Accept': 'application/json',
+                    'Accept': 'text/event-stream',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -98,19 +98,56 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
                 })
             })
 
-            const data = await res.json()
-            console.log("Response from backend: ", data)
+            const reader = res.body?.getReader()
+            const decoder = new TextDecoder('utf-8')
+            let streamedContent = ''
 
-            if (data.response) {
-                const newModelMessage: NewChatMessage = {
+            if (reader) {
+                while (true) {
+                    const {value, done} = await reader.read()
+                    if (done) break
+
+                    const chunk = decoder.decode(value, {stream: true})
+                    const matches = [...chunk.matchAll(/data: (.*)\n\n/g)]
+
+                    for (const match of matches) {
+                        const text = match[1]
+                        if (text === '[DONE]') {
+                            break
+                        }
+
+                        streamedContent += text
+
+                        setPrompts((prev) => {
+                            const last = prev[prev.length - 1]
+                            if (last?.sender === 'model') {
+                                // edit last model message
+                                return [...prev.slice(0, -1), {...last, content: streamedContent}]
+                            } else {
+                                // append new model message
+                                return [...prev, {
+                                    message_id: crypto.randomUUID(),
+                                    session_id: sessionId,
+                                    user_id: authSession.user.id,
+                                    sender: 'model',
+                                    content: text,
+                                    created_at: new Date().toISOString()
+                                }]
+                            }
+                        })
+                    }
+                }
+            }
+
+            if (streamedContent) {
+                const finalModelMessage: NewChatMessage = {
                     session_id: sessionId,
                     user_id: authSession.user.id,
                     sender: 'model',
-                    content: data.response
+                    content: streamedContent
                 }
-                await supabase.from("chat_messages").insert(newModelMessage)
-                setPrompts((p) => [...p, {...newModelMessage, message_id: crypto.randomUUID(), created_at: new Date().toISOString()}])
-                console.log("Inserted model message: ", newModelMessage)
+                await supabase.from("chat_messages").insert(finalModelMessage)
+                console.log("Inserted model message: ", finalModelMessage)
             }
         } catch (error) {
             console.error("Error inserting prompt:", error)
@@ -120,14 +157,18 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
     }
 
     return (
-        <div className = 'flex flex-col h-screen'>
-            <ChatWindow prompts={prompts} isLoading={isLoading}/>
-            <MessageInput
-                value={newPrompt.content}
-                isLoading={isLoading}
-                onChange={(e) => setNewPrompt({content: e.target.value})}
-                onSubmit={handleSubmit}
-            />
+        <div className="flex flex-col h-screen w-full">
+            <div className="flex-grow overflow-hidden">
+                <ChatWindow prompts={prompts} isLoading={isLoading}/>
+            </div>
+            <div className="flex-shrink-0">
+                <MessageInput
+                    value={newPrompt.content}
+                    isLoading={isLoading}
+                    onChange={(e) => setNewPrompt({content: e.target.value})}
+                    onSubmit={handleSubmit}
+                />
+            </div>
         </div>
     )
 }

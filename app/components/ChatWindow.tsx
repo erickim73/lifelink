@@ -1,7 +1,7 @@
 'use client'
 
 import React , {useEffect, useRef} from 'react'
-import { ChatMessage } from './props';
+import { ChatMessage } from '../lib/types';
 
 type Props = {
     prompts: ChatMessage[];
@@ -17,7 +17,7 @@ const ChatWindow = ({prompts, isLoading}: Props) => {
     
 
     return (
-        <div className = 'flex-1 overflow-y-auto p-4 pb-6'>
+        <div className = 'flex-1 overflow-y-auto p-4 pb-6 h-full'>
             <div className = 'max-w-4xl mx-auto space-y-4'>
                 {prompts.map((prompt) => (
                     <div 
