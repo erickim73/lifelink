@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase-client';
 import { Session } from '@supabase/supabase-js'
-import { NewChatMessage } from '../lib/types';
+import { NewChatMessage, UserFormData } from '../lib/types';
 import { createNewSession } from '../utils/createNewSession';
 import { useRouter } from 'next/navigation';
 import { useSidebar } from '@/components/ui/sidebar';
@@ -12,6 +12,7 @@ export default function MainChat() {
     const [chatSessionId, setChatSessionId] = useState<string | null>(null)
     const [newPrompt, setNewPrompt] = useState({content: ''})
     const [session, setSession] = useState<Session | null>(null)
+    const [userProfile, setUserProfile] = useState<UserFormData | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
     const {state} = useSidebar()
@@ -92,6 +93,15 @@ export default function MainChat() {
             await supabase.from("chat_messages").insert(newUserMessage)
             console.log("Inserted user message: ", newUserMessage)
 
+            const { data, error } = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single();
+            console.log("User profile data: ", data)
+
+            if (error) {
+                console.error("Error fetching user profile: ", error)
+            } else if (data) {
+                setUserProfile(data)     
+            } 
+
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`, {
                 method: 'POST',
                 headers: {
@@ -99,19 +109,21 @@ export default function MainChat() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    newPrompt: newPrompt.content
+                    newPrompt: newPrompt.content,
+                    userProfile: userProfile
+
                 })
             })
 
-            const data = await res.json()
-            console.log("Response from backend: ", data)
+            const response = await res.json()
+            console.log("Response from backend: ", response)
 
-            if (data.response) {
+            if (response.response) {
                 const newModelMessage: NewChatMessage = {
                     session_id: currentChatSessionId,
                     user_id: session.user.id,
                     sender: 'model',
-                    content: data.response
+                    content: data.response.replace(/^\s+/, '').replace(/([.?!])(?=[^\s])/g, '$1 ')  //remove leading white space and ensure sentences have spaces
                 }
                 await supabase.from("chat_messages").insert(newModelMessage)
                 console.log("Inserted model message: ", newModelMessage)

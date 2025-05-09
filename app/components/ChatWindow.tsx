@@ -31,7 +31,7 @@ const ChatWindow = ({prompts, isLoading}: Props) => {
                         <p className="text-sm font-semibold mb-1">
                             {prompt.sender === 'user' ? 'You' : 'AI Assistant'}
                         </p>
-                        <p className="whitespace-pre-wrap">{prompt.content}</p>
+                        <p className="whitespace-pre-wrap">{prompt.content.replace(/^\s+/, '').replace(/([.?!])(?=\S)/g, '$1 ')}</p>
                     </div>
                 ))}
                 {isLoading && (

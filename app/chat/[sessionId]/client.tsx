@@ -5,12 +5,13 @@ import { Session } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase-client'
 import ChatWindow from '../../components/ChatWindow';
 import MessageInput from '../../components/MessageInput'
-import {ChatMessage, NewChatMessage} from '../../lib/types'
+import {ChatMessage, NewChatMessage, UserFormData} from '../../lib/types'
 
 export default function ChatDetail({sessionId}: {sessionId: string}) {
     const [authSession, setAuthSession] = useState<Session | null>(null)
     const [prompts, setPrompts] = useState<ChatMessage[]>([])
     const [newPrompt, setNewPrompt] = useState({content: ''})
+    const [userProfile, setUserProfile] = useState<UserFormData | null>(null)
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
@@ -87,6 +88,15 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
             console.log("Inserted user message: ", newUserMessage)
             setPrompts((p) => [...p, {...newUserMessage, message_id: crypto.randomUUID(), created_at: new Date().toISOString()}])
 
+            const { data, error } = await supabase.from('profiles').select('*').eq('user_id', authSession.user.id).single();
+            console.log("User profile data: ", data)
+
+            if (error) {
+                console.error("Error fetching user profile: ", error)
+            } else if (data) {
+                setUserProfile(data)     
+            } 
+
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/stream`, {
                 method: 'POST',
                 headers: {
@@ -94,7 +104,8 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    newPrompt: newPrompt.content
+                    newPrompt: newPrompt.content,
+                    userProfile: userProfile
                 })
             })
 
@@ -144,7 +155,7 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
                     session_id: sessionId,
                     user_id: authSession.user.id,
                     sender: 'model',
-                    content: streamedContent
+                    content: streamedContent.replace(/^\s+/, '').replace(/([.?!])(?=[^\s])/g, '$1 ')  //remove leading white space and ensure sentences have spaces
                 }
                 await supabase.from("chat_messages").insert(finalModelMessage)
                 console.log("Inserted model message: ", finalModelMessage)
