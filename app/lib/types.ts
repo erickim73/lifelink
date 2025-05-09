@@ -44,5 +44,13 @@ export interface UserProfile {
     name: string;
     email: string;
     initials: string;
+}
 
+export interface ProfileDetailProps {
+    userData: UserFormData | null
+    formState: UserFormData | null
+    isEditing: boolean
+    handleInputChange: (field: keyof UserFormData, value: string) => void
+    toggleEditMode: () => void
+    handleSaveChanges: () => void
 }

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { Session } from '@supabase/supabase-js';
-import {supabase} from '../../lib/supabase-client'
+import { supabase } from '../../lib/supabase-client'
 import ChatWindow from '../../components/ChatWindow';
 import MessageInput from '../../components/MessageInput'
 import {ChatMessage, NewChatMessage} from '../../lib/types'
@@ -21,7 +21,7 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
 
     useEffect(() => {        
         if (!sessionId) {
-            console.log("No session ID provided")
+            console.log("No chat session ID provided")
             return
         }
 

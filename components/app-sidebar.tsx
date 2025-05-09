@@ -20,7 +20,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const [userData, setUserData] = useState<UserProfile | null>(null)
     const pathname = usePathname()
 
-    const isOnboarding = pathname === '/onboarding'
+    const noSideBarPage = pathname === '/onboarding' || '/profile'
 
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
@@ -89,7 +89,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     
     const { state } = useSidebar();
 
-    if (isOnboarding) return null
+    if (noSideBarPage) return null
 
     return (
         <Sidebar collapsible="icon" {...props}>
