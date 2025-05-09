@@ -20,7 +20,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const [userData, setUserData] = useState<UserProfile | null>(null)
     const pathname = usePathname()
 
-    const noSideBarPage = pathname === '/onboarding' || '/profile'
+    const noSideBarRoutes = ['/onboarding', '/profile']
+    const noSideBarPage = noSideBarRoutes.includes(pathname)
 
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
@@ -42,7 +43,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         }
 
         try {
-            supabase.from('chat_sessions').select('*').eq('user_id', sessionId?.user.id).order('created_at', {ascending: false}).then(({data, error}) => {
+            supabase.from('chat_sessions').select('*').eq('user_id', sessionId?.user.id).order('updated_at', {ascending: false}).then(({data, error}) => {
                 if (error) {
                     console.error("Error fetching chat session: ", error)
                 }
@@ -125,7 +126,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             className="block text-sm px-2 py-1 rounded hover:bg-muted cursor-pointer truncate"
                             title={session.session_id}
                             >
-                            {new Date(session.created_at).toLocaleString()}
+                            {new Date(session.updated_at).toLocaleString()}
                             </Link>
                         </li>
                         ))}

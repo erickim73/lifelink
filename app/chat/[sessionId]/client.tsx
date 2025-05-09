@@ -149,10 +149,18 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
                 await supabase.from("chat_messages").insert(finalModelMessage)
                 console.log("Inserted model message: ", finalModelMessage)
             }
+
         } catch (error) {
             console.error("Error inserting prompt:", error)
         } finally {
             setIsLoading(false)
+        }
+
+        const {error} = await supabase.from("chat_sessions").update({"updated_at": new Date().toISOString()}).eq("session_id", sessionId)
+        if (error) {
+            console.error("Error updating updated_at: ", error)
+        } else {
+            console.log("Successfully updated updated_at for session: ", sessionId)
         }
     }
 
