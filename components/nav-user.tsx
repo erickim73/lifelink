@@ -1,44 +1,20 @@
 "use client"
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react"
+import {ChevronsUpDown, HelpCircle, LogOut, Settings, User, } from "lucide-react"
+import {Avatar, AvatarFallback, } from "@/components/ui/avatar"
+import {DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger} from "@/components/ui/dropdown-menu"
+import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar} from "@/components/ui/sidebar"
+import { supabase } from "@/app/lib/supabase-client"
+import Link from "next/link"
 
-import {
-  Avatar,
-  AvatarFallback,
-} from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
-
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string
-    email: string
-    initials: string
-  }
-}) {
+export function NavUser({user}: {user: {name: string, email: string, initials: string}}) {
   const { isMobile } = useSidebar()
+
+  const logout = async () => {
+        await supabase.auth.signOut();
+        console.log("Logged out")
+    }
+  
 
   return (
     <SidebarMenu>
@@ -60,7 +36,7 @@ export function NavUser({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="w-full min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -79,29 +55,30 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
+                <Link href = '/profile' className="flex w-full items-center gap-2 px-2">
+                  <User className="size-5" />
+                  <span>Profile</span>
+                </Link>
+                
+                
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href = '/settings/profile' className="flex w-full items-center gap-2 px-2">
+                  <Settings className="size-5" />
+                  <span>Settings</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href = '/termsofservice' className="flex w-full items-center gap-2 px-2">
+                    <HelpCircle className="size-5" />
+                    <span>Terms of Service</span>
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut />
-              Log out
+            <DropdownMenuItem onClick={logout} className="flex w-full items-center gap-2 px-2 py-2 cursor-pointer">
+              <LogOut className="size-5" />
+              <span>Log out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

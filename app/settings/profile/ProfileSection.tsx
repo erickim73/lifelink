@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useEffect, useState, useCallback } from 'react'
-import { supabase } from '../lib/supabase-client'
-import { UserFormData } from '../lib/types';
+import { supabase } from '../../lib/supabase-client'
+import { UserFormData } from '../../lib/types';
 import { Session } from '@supabase/supabase-js';
 import { Loader2, Shield } from 'lucide-react'
 import ProfileDetails from './ProfileDetails';
@@ -129,8 +129,8 @@ const Profile = () => {
     
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white p-6">
-            <div className="max-w-3xl mx-auto">
+        <div className="min-h-screen w-full bg-gray-900 text-white p-6">
+            <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="bg-gray-800 rounded-lg p-6 mb-6 shadow-lg">
                     <div className="flex items-start justify-between">

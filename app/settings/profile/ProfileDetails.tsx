@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ProfileDetailProps } from '../lib/types';
+import { ProfileDetailProps } from '../../lib/types';
 import { User, Calendar, Heart, Pill, Target } from 'lucide-react'
 
 
@@ -15,7 +15,7 @@ const ProfileSection = React.memo(function ProfileSection({icon, title, content,
             <div className="pl-8 text-gray-300">{content}</div>
         </div>
     );
-  });
+});
 
 export default function ProfileDetails({userData, formState, isEditing, handleInputChange, toggleEditMode, handleSaveChanges}: ProfileDetailProps) {
     return (
@@ -40,13 +40,17 @@ export default function ProfileDetails({userData, formState, isEditing, handleIn
                                 className = "bg-gray-700 p-2 rounded text-white w-full"
                                 placeholder="Last Name"
                             />
-                            <input
-                                type="text"
+                            <select
                                 value={formState?.gender || ''}
                                 onChange={(e) => handleInputChange('gender', e.target.value)}
                                 className="bg-gray-700 p-2 rounded text-white w-full"
-                                placeholder="Gender"
-                            />
+                            >
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="non-binary">Non-binary</option>
+                                <option value="prefer_not_to_say">Prefer not to say</option>
+                            </select>
                         </div>
                     ) : (
                         <div>
@@ -57,6 +61,7 @@ export default function ProfileDetails({userData, formState, isEditing, handleIn
                     
                 }
             />
+
         
             <ProfileSection 
                 icon={<Calendar className="w-5 h-5 text-green-400" />}

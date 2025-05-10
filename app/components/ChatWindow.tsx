@@ -14,7 +14,14 @@ const ChatWindow = ({prompts, isLoading}: Props) => {
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [prompts])
-    
+
+    function formatMessage(text: string): string {
+        return text
+          .replace(/^\s+/, '')                              // remove leading whitespace
+          .replace(/([.?!])(?=\S)/g, '$1 ')                 // ensure space after punctuation
+          .replace(/(?<!\n)(\d+)\.\s/g, '\n$1. ')           // newline before numbered items
+          .replace(/([a-z])\:\s*(?=\d+\.)/gi, '$1:\n')      // newline after colon before list
+    }
 
     return (
         <div className = 'flex-1 overflow-y-auto p-4 pb-6 h-full'>
@@ -31,7 +38,9 @@ const ChatWindow = ({prompts, isLoading}: Props) => {
                         <p className="text-sm font-semibold mb-1">
                             {prompt.sender === 'user' ? 'You' : 'AI Assistant'}
                         </p>
-                        <p className="whitespace-pre-wrap">{prompt.content.replace(/^\s+/, '').replace(/([.?!])(?=\S)/g, '$1 ')}</p>
+                        <p className="whitespace-pre-line leading-relaxed">
+                            {formatMessage(prompt.content)}
+                        </p>
                     </div>
                 ))}
                 {isLoading && (

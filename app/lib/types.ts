@@ -54,3 +54,20 @@ export interface ProfileDetailProps {
     toggleEditMode: () => void
     handleSaveChanges: () => void
 }
+
+export interface SettingsSideBar {
+    activeTab: string;
+    setActiveTab: (tab: string) => void
+    darkMode: boolean;
+}
+
+export interface SettingsAppearance {
+    darkMode: boolean
+    setDarkMode: (val: boolean) => void
+}
+
+export interface SettingsAccount {
+    notifications: boolean
+    setNotifications: (val: boolean) => void
+    darkMode: boolean
+}
