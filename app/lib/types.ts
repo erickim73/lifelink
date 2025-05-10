@@ -71,3 +71,4 @@ export interface SettingsAccount {
     setNotifications: (val: boolean) => void
     darkMode: boolean
 }
+

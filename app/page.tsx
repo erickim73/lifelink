@@ -40,6 +40,11 @@ export default function Home() {
                             Chat
                         </button>
                     </Link>
+                    <Link href = '/settings'>
+                        <button className='border border-white p-3 rounded-2xl'>
+                            Settings
+                        </button>
+                    </Link>
                     <button onClick={logout} className='border border-white p-3 rounded-2xl'>
                         Log Out
                     </button>

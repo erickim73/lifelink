@@ -5,6 +5,8 @@ import Profile from './profile/ProfileSection';
 import SideBar from './sidebar/Sidebar';
 import Appearance from './appearance/Appearance';
 import Account from './account/Account';
+import Privacy from './privacy/Privacy';
+import Security from './security/Security';
 
 export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState('profile');
@@ -31,6 +33,18 @@ export default function SettingsPage() {
                             {activeTab === 'appearance' && (
                                 <div>
                                     <Appearance darkMode={darkMode} setDarkMode={setDarkMode}/>
+                                </div>
+                            )}
+
+                            {activeTab === 'privacy' && (
+                                <div>
+                                    <Privacy/>
+                                </div>
+                            )}
+
+                            {activeTab === 'security' && (
+                                <div>
+                                    <Security/>
                                 </div>
                             )}
 

@@ -2,14 +2,15 @@
 
 import React from 'react'
 import { SettingsSideBar } from '@/app/lib/types';
-import { User, Moon, CreditCard } from 'lucide-react';
-
+import { User, Moon, CreditCard, Lock, Shield } from 'lucide-react';
 
 const SideBar = ({activeTab, setActiveTab, darkMode}: SettingsSideBar) => {
     
     const tabs = [
         { id: 'profile', label: 'Profile', icon: <User className="w-5 h-5" /> },
         { id: 'appearance', label: 'Appearance', icon: <Moon className="w-5 h-5" /> },
+        { id: 'privacy', label: 'Privacy', icon: <Shield className="w-5 h-5" /> },
+        { id: 'security', label: 'Security', icon: <Lock className="w-5 h-5" /> },
         { id: 'account', label: 'Account', icon: <CreditCard className="w-5 h-5" /> },
     ];
 

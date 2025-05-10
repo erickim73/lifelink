@@ -20,7 +20,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const [userData, setUserData] = useState<UserProfile | null>(null)
     const pathname = usePathname()
 
-    const noSideBarRoutes = ['/onboarding', '/profile', '/settings/profile', ]
+    const noSideBarRoutes = ['/onboarding', '/profile', '/settings/profile', '/settings']
     const noSideBarPage = noSideBarRoutes.includes(pathname)
 
     useEffect(() => {
