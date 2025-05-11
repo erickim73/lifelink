@@ -36,9 +36,12 @@ export default function MainChat() {
         const adjustHeight = () => {
             const textarea = textareaRef.current
             if (textarea) {
-                textarea.style.height = '20px'
-                const newHeight = Math.min(300, Math.max(50, textarea.scrollHeight))
+                textarea.style.height = 'auto'
+                const scrollHeight = textarea.scrollHeight
+                const maxHeight = 200
+                const newHeight = Math.min(maxHeight, scrollHeight)
                 textarea.style.height = `${newHeight}px`
+                textarea.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden'
             }
         }
         adjustHeight()
@@ -144,55 +147,66 @@ export default function MainChat() {
     }
 
     return (
-        <div className={`flex-1 h-screen flex flex-col items-stretch justify-center transition-all duration-300 ${
-            state === "expanded" ? "ml-64" : "ml-16"
-        }`}>
-            <div className="w-full self-stretch px-2 md:px-4 lg:px-8">
-                <h1 className="text-3xl sm:text-4xl font-semibold mb-10 text-center">What can I help you with?</h1>
-                
-                <form onSubmit={handleSubmit} className="w-full">
-                    <div className="flex items-center gap-3 bg-zinc-900 rounded-full px-6 py-3 shadow-lg border border-zinc-700">
-                        <textarea
-                            ref={textareaRef}
-                            placeholder="Ask anything"
-                            value={newPrompt.content}
-                            onChange={(e) => setNewPrompt({ content: e.target.value })}
-                            rows={1}
-                            className="flex-1 min-w-0 bg-transparent outline-none text-white placeholder-gray-400 py-3 resize-none w-full"
-                            style={{
-                                minHeight: '50px',
-                                maxHeight: '300px',
-                                overflowY: 'auto',
-                                lineHeight: '1.5',
-                                width: '100%',
-                            }}
-                            onKeyDown={(e) => {
-                                // Submit on Enter without Shift key
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    const form = e.currentTarget.form;
-                                    if (form && !isLoading && newPrompt.content.trim()) {
-                                        form.requestSubmit();
-                                    }
-                                }
-                            }}
-                        />
-                        <button
-                            type="submit"
-                            disabled={isLoading || !newPrompt.content.trim()}
-                            className="bg-white text-black font-medium p-3 rounded-xl hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-                        >
-                            {isLoading ? (
-                                <div className="h-5 w-5 border-2 border-gray-600 border-t-white rounded-full animate-spin"></div>
-                            ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-up">
-                                    <path d="m5 12 7-7 7 7"/>
-                                    <path d="M12 19V5"/>
-                                </svg>
-                            )}
-                        </button>
-                    </div>
-                </form>
+        <div className="fixed inset-0"
+            style={{
+                marginLeft: state === "expanded" ? "16rem" : "4rem", // 64px or 16px for sidebar
+                backgroundColor: "#111",
+            }}
+        >
+            <div className="flex flex-col items-center justify-center h-full w-full">
+                <div className="w-full max-w-[90%] px-4">
+                    <h1 className="text-3xl sm:text-4xl font-semibold mb-10 text-center">What can I help you with?</h1>
+            
+                    <form onSubmit={handleSubmit} className="w-full">
+                        <div className="relative w-full flex flex-col bg-zinc-800 rounded-2xl px-6 py-6 shadow-lg border border-zinc-700">
+                            <div className="w-full" style={{ minWidth: "100%" }}>
+                                <textarea
+                                    ref={textareaRef}
+                                    placeholder="Ask anything"
+                                    value={newPrompt.content}
+                                    onChange={(e) => setNewPrompt({ content: e.target.value })}
+                                    rows={2}
+                                    className="w-full bg-transparent rounded-2xl outline-none text-white placeholder-gray-400 py-1 resize-none"
+                                    style={{
+                                        minHeight: '40px',
+                                        maxHeight: '200px',
+                                        overflowY: 'auto',
+                                        lineHeight: '1.5',
+                                        width: '100%',
+                                        boxSizing: 'border-box',
+                                        border: "1px solid transparent",
+                                    }}
+                                    onKeyDown={(e) => {
+                                        // Submit on Enter without Shift key
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            const form = e.currentTarget.form;
+                                            if (form && !isLoading && newPrompt.content.trim()) {
+                                                form.requestSubmit();
+                                            }
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className="absolute bottom-4 right-4">
+                                <button
+                                    type="submit"
+                                    disabled={isLoading || !newPrompt.content.trim()}
+                                    className="bg-[#1A4B84] text-black font-medium p-3 rounded-xl hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isLoading ? (
+                                        <div className="h-5 w-5 border-2 border-gray-600 border-t-white rounded-full animate-spin"></div>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-up">
+                                            <path d="m5 12 7-7 7 7"/>
+                                            <path d="M12 19V5"/>
+                                        </svg>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     )

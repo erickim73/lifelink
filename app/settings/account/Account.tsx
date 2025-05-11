@@ -1,12 +1,12 @@
 import React from 'react'
 import { SettingsAccount } from '../../lib/types';
-import { Bell, ChevronRight, Lock, HelpCircle, LogOut } from 'lucide-react'
+import { Bell, LogOut } from 'lucide-react'
 import { supabase } from '@/app/lib/supabase-client';
 import { motion } from "framer-motion"
 import { useRouter } from 'next/navigation';
 
 
-const Account = ({notifications, setNotifications, darkMode}: SettingsAccount) => {
+const Account = ({notifications, setNotifications}: SettingsAccount) => {
     const router = useRouter()
     
 

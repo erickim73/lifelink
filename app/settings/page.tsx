@@ -49,7 +49,7 @@ export default function SettingsPage() {
                             )}
 
                             {activeTab === 'account' && (
-                                <Account notifications={notifications} setNotifications={setNotifications} darkMode={darkMode}/>
+                                <Account notifications={notifications} setNotifications={setNotifications}/>
                             )}
                         </div>
                     </div>
