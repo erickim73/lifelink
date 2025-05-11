@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase-client';
 import { Session } from '@supabase/supabase-js'
-import { NewChatMessage, UserFormData } from '../lib/types';
+import { NewChatMessage } from '../lib/types';
 import { createNewSession } from '../utils/createNewSession';
 import { useRouter } from 'next/navigation';
 import { useSidebar } from '@/components/ui/sidebar';
@@ -12,11 +12,10 @@ export default function MainChat() {
     const [chatSessionId, setChatSessionId] = useState<string | null>(null)
     const [newPrompt, setNewPrompt] = useState({content: ''})
     const [session, setSession] = useState<Session | null>(null)
-    const [userProfile, setUserProfile] = useState<UserFormData | null>(null)
     const [isLoading, setIsLoading] = useState(false)
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
     const router = useRouter()
     const {state} = useSidebar()
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
     
 
     useEffect(() => {
@@ -83,8 +82,6 @@ export default function MainChat() {
 
         setIsLoading(true)
 
-        router.push(`/chat/${currentChatSessionId}`)
-
         try {
             const newUserMessage: NewChatMessage = {
                 session_id: currentChatSessionId,
@@ -96,65 +93,36 @@ export default function MainChat() {
             await supabase.from("chat_messages").insert(newUserMessage)
             console.log("Inserted user message: ", newUserMessage)
 
-            const { data, error } = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single();
-            console.log("User profile data: ", data)
+            const { data: profileData, error: profileError } = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single();
+            console.log("User profile data: ", profileData)
 
-            if (error) {
-                console.error("Error fetching user profile: ", error)
-            } else if (data) {
-                setUserProfile(data)     
-            } 
-
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    newPrompt: newPrompt.content,
-                    userProfile: userProfile
-
-                })
-            })
-
-            const response = await res.json()
-            console.log("Response from backend: ", response)
-
-            if (response.response) {
-                const newModelMessage: NewChatMessage = {
-                    session_id: currentChatSessionId,
-                    user_id: session.user.id,
-                    sender: 'model',
-                    content: data.response.replace(/^\s+/, '').replace(/([.?!])(?=[^\s])/g, '$1 ')  //remove leading white space and ensure sentences have spaces
-                }
-                await supabase.from("chat_messages").insert(newModelMessage)
-                console.log("Inserted model message: ", newModelMessage)
+            if (profileError || !profileData) {
+                console.error("Error fetching user profile: ", profileError);
+                setIsLoading(false);
+                return;
             }
+
+            await supabase.from("chat_sessions").update({"updated_at": new Date().toISOString()}).eq("session_id", currentChatSessionId)
+
+            setNewPrompt({content: ''})
+
+            router.push(`/chat/${currentChatSessionId}`);
+
         } catch (error) {
             console.error("Error inserting prompt:", error)
         } finally {
             setIsLoading(false)
-        }
-
-        const {error} = await supabase.from("chat_sessions").update({"updated_at": new Date().toISOString()}).eq("session_id", currentChatSessionId)
-        if (error) {
-            console.error("Error updating updated_at: ", error)
-        } else {
-            console.log("Successfully updated updated_at for session: ", currentChatSessionId)
-        }
-        
+        }        
     }
 
     return (
         <div className="fixed inset-0"
             style={{
                 marginLeft: state === "expanded" ? "16rem" : "4rem", // 64px or 16px for sidebar
-                backgroundColor: "#111",
             }}
         >
             <div className="flex flex-col items-center justify-center h-full w-full">
-                <div className="w-full max-w-[90%] px-4">
+                <div className="w-full max-w-[80%] px-4">
                     <h1 className="text-3xl sm:text-4xl font-semibold mb-10 text-center">What can I help you with?</h1>
             
                     <form onSubmit={handleSubmit} className="w-full">

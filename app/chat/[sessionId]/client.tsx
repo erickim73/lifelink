@@ -1,18 +1,19 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase-client'
 import ChatWindow from '../../components/ChatWindow';
 import MessageInput from '../../components/MessageInput'
-import {ChatMessage, NewChatMessage, UserFormData} from '../../lib/types'
-
+import {ChatMessage, NewChatMessage} from '../../lib/types'
+ 
 export default function ChatDetail({sessionId}: {sessionId: string}) {
     const [authSession, setAuthSession] = useState<Session | null>(null)
     const [prompts, setPrompts] = useState<ChatMessage[]>([])
     const [newPrompt, setNewPrompt] = useState({content: ''})
-    const [userProfile, setUserProfile] = useState<UserFormData | null>(null)
     const [isLoading, setIsLoading] = useState(false)
+    const firstLoadRef = useRef(true)
+    const pendingResponseCheckedRef = useRef(false)
 
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
@@ -30,6 +31,18 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
             supabase.from('chat_messages').select('*').eq('session_id', sessionId).order('created_at').then(({data, error}) => {
                 if (!error) {
                     setPrompts(data as ChatMessage[])
+
+                    // if first message
+                    if (!pendingResponseCheckedRef.current && authSession?.user?.id && data && data.length > 0) {
+                        pendingResponseCheckedRef.current = true
+                        const lastMessage = data[data.length - 1] as ChatMessage
+
+                        if (lastMessage.sender === 'user') {
+                            console.log("Found pending user message, initiating AI response")
+                            initiateAIResponse(lastMessage.content, authSession.user.id)
+                        }
+                    }
+                    firstLoadRef.current = false
                 } else {
                     console.error("Error fetching chat messages: ", error.message)
                 }
@@ -37,7 +50,7 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
         } catch (error) {
             console.error("Error fetching chat session: ", error)
         }
-    }, [sessionId])
+    }, [sessionId, authSession])
 
     useEffect(() => {
         const channel = supabase.channel('realtime_chat').on('postgres_changes',
@@ -49,7 +62,13 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
             },
             (payload) => {
                 const newMsg = payload.new as ChatMessage
-                setPrompts((prev) => [...prev, newMsg])
+                setPrompts((prev) => {
+                    // Check if the message already exists in our list to avoid duplicates
+                    if (!prev.some(msg => msg.message_id === newMsg.message_id)) {
+                        return [...prev, newMsg]
+                    }
+                    return prev
+                })
             }
         ).subscribe()
     
@@ -58,10 +77,107 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
         }
     }, [sessionId])
 
+    const initiateAIResponse = async (promptContent: string, userId: string) => {
+        if (!authSession || !promptContent || !sessionId) {
+            return
+        }
+
+        setIsLoading(true)
+
+        try {
+            const {data: profileData, error: profileError} = await supabase.from('profiles').select("*").eq('user_id', userId).single()
+            
+            if (profileError || !profileData) {
+                console.error("Error fetching user profile: ", profileError)
+                return
+            }
+
+            const loadingMsgId = crypto.randomUUID()
+            setPrompts((prev) => [...prev, {
+                message_id: loadingMsgId,
+                session_id: sessionId,
+                user_id: userId,
+                sender: 'model',
+                content: '...',
+                created_at: new Date().toISOString()
+            }])
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/stream`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'text/event-stream',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    newPrompt: promptContent,
+                    userProfile: profileData,
+                    sessionId: sessionId  
+                })
+            })
+
+            const reader = res.body?.getReader()
+            const decoder = new TextDecoder('utf-8')
+            let streamedContent = ''
+
+            if (reader) {
+                while (true) {
+                    const {value, done} = await reader.read()
+                    if (done) break
+
+                    const chunk = decoder.decode(value, {stream: true})
+                    const matches = [...chunk.matchAll(/data: (.*)\n\n/g)]
+
+                    for (const match of matches) {
+                        const text = match[1]
+                        if (text === '[DONE]') {
+                            break
+                        }
+
+                        streamedContent += text
+
+                        setPrompts((prev) => {
+                            const last = prev[prev.length - 1]
+                            if (last?.sender === 'model') {
+                                // edit last model message
+                                return [...prev.slice(0, -1), {...last, content: streamedContent}]
+                            } else {
+                                // append new model message
+                                return [...prev, {
+                                    message_id: crypto.randomUUID(),
+                                    session_id: sessionId,
+                                    user_id: authSession.user.id,
+                                    sender: 'model',
+                                    content: text,
+                                    created_at: new Date().toISOString()
+                                }]
+                            }
+                        })
+                    }
+                }
+            }
+
+
+            if (streamedContent) {
+                const finalModelMessage: NewChatMessage = {
+                    session_id: sessionId,
+                    user_id: authSession.user.id,
+                    sender: 'model',
+                    content: streamedContent.replace(/^\s+/, '').replace(/([.?!])(?=[^\s])/g, '$1 ')  //remove leading white space and ensure sentences have spaces
+                }
+                await supabase.from("chat_messages").insert(finalModelMessage)
+                console.log("Inserted model message: ", finalModelMessage)
+            }            
+        } catch (error) {
+            console.error("Error getting response: ", error)
+            setPrompts((prev) => prev.filter(msg => msg.message_id !== 'temp-loading-message'))
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
     
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        setNewPrompt({content: ''})
         console.log("Submitting prompt:", newPrompt.content)
 
         if (!newPrompt.content.trim() || !authSession?.user.id || !sessionId) {
@@ -73,6 +189,8 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
 
         console.log('Prompt:', newPrompt.content)
         setIsLoading(true)
+        const promptContent = newPrompt.content
+        setNewPrompt({content: ''})
         const user_id = authSession.user.id
 
 
@@ -81,21 +199,21 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
                 session_id: sessionId,
                 user_id: user_id,
                 sender: 'user',
-                content: newPrompt.content
+                content: promptContent
             }
 
             await supabase.from("chat_messages").insert(newUserMessage)
             console.log("Inserted user message: ", newUserMessage)
             setPrompts((p) => [...p, {...newUserMessage, message_id: crypto.randomUUID(), created_at: new Date().toISOString()}])
 
-            const { data, error } = await supabase.from('profiles').select('*').eq('user_id', authSession.user.id).single();
-            console.log("User profile data: ", data)
+            const { data: profileData, error: profileError } = await supabase.from('profiles').select('*').eq('user_id', user_id).single();
+            console.log("User profile data: ", profileData)
 
-            if (error) {
-                console.error("Error fetching user profile: ", error)
-            } else if (data) {
-                setUserProfile(data)     
-            } 
+            if (profileError || !profileData) {
+                console.error("Error fetching user profile: ", profileError);
+                setIsLoading(false);
+                return;
+            }
 
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/stream`, {
                 method: 'POST',
@@ -104,8 +222,9 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    newPrompt: newPrompt.content,
-                    userProfile: userProfile
+                    newPrompt: promptContent,
+                    userProfile: profileData,
+                    sessionId: sessionId
                 })
             })
 

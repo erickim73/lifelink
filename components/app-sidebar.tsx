@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { NavUser } from "@/components/nav-user";
-import {Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, SidebarTrigger, useSidebar,} from "@/components/ui/sidebar";
+import {Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarRail, SidebarSeparator, SidebarTrigger, useSidebar,} from "@/components/ui/sidebar";
 import { ModeToggle } from "./mode-toggle";
 import { NewChat } from "./new-chat";
 import { supabase } from "@/app/lib/supabase-client";
@@ -12,6 +12,8 @@ import { ChatSession } from "@/app/lib/types";
 import Link from "next/link";  
 import { usePathname } from "next/navigation";
 import { UserProfile } from '../app/lib/types';
+import { MessageSquare, Clock } from "lucide-react"
+import { Badge } from "./ui/badge";
 
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -19,9 +21,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const [sessionId, setSessionId] = useState<Session | null>(null)
     const [userData, setUserData] = useState<UserProfile | null>(null)
     const pathname = usePathname()
+    const { state } = useSidebar()
 
     const noSideBarRoutes = ['/onboarding', '/profile', '/settings/profile', '/settings']
-    const noSideBarPage = noSideBarRoutes.includes(pathname)
+    const noSideBarPage = noSideBarRoutes.includes(pathname || "")
 
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
@@ -88,58 +91,172 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         }
     }, [sessionId])
     
-    const { state } = useSidebar();
-
     if (noSideBarPage) return null
 
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString)
+        const now = new Date()
+        const yesterday = new Date(now)
+        yesterday.setDate(yesterday.getDate() - 1)
+
+        // if today, show time only
+        if (date.toDateString() === now.toDateString()) {
+            return `Today at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+        } 
+
+        // if yesterday, show yesterday
+        if (date.toDateString() === yesterday.toDateString()) {
+            return `Yesterday at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+        }
+
+        // if this year, show month and date
+        if (date.getFullYear() === now.getFullYear()) {
+            return date.toLocaleDateString([], { month: "short", day: "numeric" })
+        }
+
+        // otherwise, show full date
+        return date.toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" })
+    }
+
+    // group chat sessions by date
+    const today = new Date().toDateString()
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayString = yesterday.toDateString()
+
+    const groupedSessions = chatSessionIds.reduce((groups, session) => {
+        const sessionDate = new Date(session.updated_at).toDateString()
+    
+        if (sessionDate === today) {
+            if (!groups.today) groups.today = []
+            groups.today.push(session)
+        } else if (sessionDate === yesterdayString) {
+            if (!groups.yesterday) groups.yesterday = []
+            groups.yesterday.push(session)
+        } else {
+            if (!groups.older) groups.older = []
+            groups.older.push(session)
+        }
+    
+        return groups
+        },
+        { today: [], yesterday: [], older: [] } as Record<string, ChatSession[]>,
+    )
+
     return (
-        <Sidebar collapsible="icon" {...props}>
-            <div className="relative">
-                <SidebarHeader className="flex justify-center py-4">
-                <div className="absolute left-4 top-4 scale-150">
-                    <SidebarTrigger />
+        <Sidebar collapsible="icon" className="border-r border-border" {...props}>
+            <SidebarHeader className="p-3">
+                <div className="flex items-center justify-between w-full">
+                    <SidebarTrigger className="h-8 w-8" />
+                    {state === "expanded" && (
+                        <div className="flex items-center gap-2">
+                            <ModeToggle />
+                            <NewChat />
+                        </div>
+                    )}
                 </div>
+            </SidebarHeader>
+            <SidebarSeparator className="mx-0 w-full" />
+            
+            <SidebarContent>
+                <SidebarGroup>
+                    <SidebarGroupLabel className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" />
+                        <span>Recent Chats</span>
+                        {chatSessionIds.length > 0 && (
+                            <Badge variant="outline" className="ml-auto text-xs">
+                                {chatSessionIds.length}
+                            </Badge>
+                        )}
+                    </SidebarGroupLabel>
+                
 
-                {state === "expanded" && (
-                    <>
-                    <div className="absolute right-13 top-4 scale-150">
-                        <ModeToggle />
-                    </div>
-                    <div className="absolute right-3 top-4 scale-150">
-                        <NewChat />
-                    </div>
-                    </>
-                )}
-                </SidebarHeader>
-            </div>
-        <SidebarContent>
-            {chatSessionIds.length > 0 && (
-                <div className = 'p-2'>
-                    <div className = 'text-xs font-semibold text-muted-foreground mb-2 mt-5'>
-                        Recent Chats
-                    </div>
-                    <ul className="flex flex-col gap-1">
-                    {chatSessionIds.map((session) => (
-                        <li key={session.session_id}>
-                            <Link
-                            href={`/chat/${session.session_id}`}
-                            className="block text-sm px-2 py-1 rounded hover:bg-muted cursor-pointer truncate"
-                            title={session.session_id}
-                            >
-                            {new Date(session.updated_at).toLocaleString()}
-                            </Link>
-                        </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-        </SidebarContent>
+                    {chatSessionIds.length === 0 ? (
+                        <div className="px-3 py-2 text-sm text-muted-foreground italic">No recent chats</div>
+                    ): (
+                        <SidebarMenu>
+                            {groupedSessions.today?.length > 0 && (
+                                <>
+                                    <div className="px-3 py-1 text-xs font-medium text-muted-foreground">Today</div>
+                                    {groupedSessions.today.map((session) => (
+                                        <SidebarMenuItem key={session.session_id}>
+                                            <SidebarMenuButton 
+                                                asChild
+                                                isActive={pathname === `/chat/${session.session_id}`}
+                                                tooltip="View chat"
+                                            >
+                                                <Link href={`/chat/${session.session_id}`}>
+                                                    <Clock className="h-4 w-4" />
+                                                    <span className="flex-1 truncate">{formatDate(session.updated_at)}</span>
+                                                </Link>
 
-        <SidebarFooter>
-            {userData && <NavUser user={userData} />}
-        </SidebarFooter>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    ))}
+                                </>
+                            )}
 
-        <SidebarRail />
-        </Sidebar>
+                            {groupedSessions.yesterday?.length > 0 && (
+                                <>
+                                    <div className="px-3 py-1 mt-2 text-xs font-medium text-muted-foreground">Yesterday</div>
+                                    {groupedSessions.yesterday.map((session) => (
+                                        <SidebarMenuItem key={session.session_id}>
+                                            <SidebarMenuButton 
+                                                asChild
+                                                isActive={pathname === `/chat/${session.session_id}`}
+                                                tooltip="View chat"
+                                            >
+                                                <Link href={`/chat/${session.session_id}`}>
+                                                    <Clock className="h-4 w-4" />
+                                                    <span className="flex-1 truncate">{formatDate(session.updated_at)}</span>
+                                                </Link>
+
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    ))}
+                                </>
+                            )}
+
+                            {groupedSessions.older?.length > 0 && (
+                                <>
+                                    <div className="px-3 py-1 mt-2 text-xs font-medium text-muted-foreground">Older</div>
+                                    {groupedSessions.older.map((session) => (
+                                        <SidebarMenuItem key={session.session_id}>
+                                            <SidebarMenuButton 
+                                                asChild
+                                                isActive={pathname === `/chat/${session.session_id}`}
+                                                tooltip="View chat"
+                                            >
+                                                <Link href={`/chat/${session.session_id}`}>
+                                                    <Clock className="h-4 w-4" />
+                                                    <span className="flex-1 truncate">{formatDate(session.updated_at)}</span>
+                                                </Link>
+
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    ))}
+                                </>
+                            )}
+                        </SidebarMenu>
+                    )}
+                </SidebarGroup>
+            </SidebarContent>
+
+            <SidebarSeparator className="mx-0 w-full" />
+
+            <SidebarFooter className="p-3">
+                {userData && <NavUser user={userData} />}
+            </SidebarFooter>
+
+        <style jsx global>{`
+            /* COMMENT: Added CSS to remove resize cursor on sidebar rail */
+            .sidebar-rail {
+                cursor: default !important;
+                pointer-events: none; /* Disable interactions with the rail */
+            }
+        `}</style>
+        <SidebarRail className="sidebar-rail" />
+
+    </Sidebar>
     );
 }
