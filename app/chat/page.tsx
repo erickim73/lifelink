@@ -7,6 +7,8 @@ import { NewChatMessage } from '../lib/types';
 import { createNewSession } from '../utils/createNewSession';
 import { useRouter } from 'next/navigation';
 import { useSidebar } from '@/components/ui/sidebar';
+import lifelink_logo from '@/public/lifelink_logo.png'
+import Image from 'next/image';
 
 export default function MainChat() {
     const [chatSessionId, setChatSessionId] = useState<string | null>(null)
@@ -123,7 +125,17 @@ export default function MainChat() {
         >
             <div className="flex flex-col items-center justify-center h-full w-full">
                 <div className="w-full max-w-[80%] px-4">
-                    <h1 className="text-3xl sm:text-4xl font-semibold mb-10 text-center">What can I help you with?</h1>
+                    <div className="flex items-center justify-center gap-4 mb-10">
+                        <Image
+                            alt="LifeLink Logo"
+                            src={lifelink_logo}
+                            style={{
+                                width: 'auto',
+                                height: '40px'
+                            }}
+                        />
+                        <h1 className="text-3xl sm:text-4xl font-semibold">What can I help you with?</h1>
+                    </div>
             
                     <form onSubmit={handleSubmit} className="w-full">
                         <div className="relative w-full flex flex-col bg-zinc-800 rounded-2xl px-6 py-6 shadow-lg border border-zinc-700">
