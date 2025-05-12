@@ -64,7 +64,7 @@ const MessageInput: React.FC<MessageInputProps> = ({value, isLoading, onChange, 
                             <button
                                 type="submit"
                                 disabled={isLoading || !value.trim()}
-                                className="bg-[#1A4B84] text-black font-medium p-3 rounded-xl hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="bg-[#1A4B84] text-black font-medium p-3 rounded-xl hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? (
                                     <div className="h-5 w-5 border-2 border-gray-600 border-t-white rounded-full animate-spin"></div>
