@@ -70,4 +70,3 @@ export interface SettingsAccount {
     notifications: boolean
     setNotifications: (val: boolean) => void
 }
-

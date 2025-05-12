@@ -21,7 +21,7 @@ export function NewChat() {
             size="icon"
             className="relative"
         >
-            <SquarePen className="h-[1.2rem] w-[1.2rem]" />
+            <SquarePen className="!h-6 !w-6" />
             <span className="sr-only">New Chat</span>
         </Button>
     )
