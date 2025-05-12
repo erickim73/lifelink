@@ -20,8 +20,6 @@ export default function Home() {
         })
 
         return () => subscription.unsubscribe()
-
-
     }, [])
 
     const logout = async () => {
