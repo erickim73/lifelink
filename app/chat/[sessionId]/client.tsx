@@ -6,14 +6,43 @@ import { supabase } from '../../lib/supabase-client'
 import ChatWindow from '../../components/ChatWindow';
 import MessageInput from '../../components/MessageInput'
 import {ChatMessage, NewChatMessage} from '../../lib/types'
+import { useSidebar } from '@/components/ui/sidebar';
+
  
 export default function ChatDetail({sessionId}: {sessionId: string}) {
     const [authSession, setAuthSession] = useState<Session | null>(null)
     const [prompts, setPrompts] = useState<ChatMessage[]>([])
     const [newPrompt, setNewPrompt] = useState({content: ''})
     const [isLoading, setIsLoading] = useState(false)
-    const firstLoadRef = useRef(true)
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
     const pendingResponseCheckedRef = useRef(false)
+    const endRef = useRef<HTMLDivElement | null>(null)
+    const firstLoadRef = useRef(true)
+    const {state} = useSidebar()
+    
+
+    useEffect(() => {
+        const adjustHeight = () => {
+            const textarea = textareaRef.current
+            if (textarea) {
+                textarea.style.height = 'auto'
+                const scrollHeight = textarea.scrollHeight
+                const maxHeight = 200
+                const newHeight = Math.min(maxHeight, scrollHeight)
+                textarea.style.height = `${newHeight}px`
+                textarea.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden'
+            }
+        }
+        adjustHeight()
+
+        const timeoutId = setTimeout(adjustHeight, 10) // Delay to ensure the height is adjusted after rendering
+
+        return () => clearTimeout(timeoutId)
+    }, [newPrompt.content])
+
+    useEffect(() => {
+        endRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [prompts])
 
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
@@ -193,7 +222,6 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
         setNewPrompt({content: ''})
         const user_id = authSession.user.id
 
-
         try {
             const newUserMessage: NewChatMessage = {
                 session_id: sessionId,
@@ -294,8 +322,14 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
         }
     }
 
+
+
     return (
-        <div className="flex flex-col h-screen w-full">
+        <div className="fixed inset-0 flex flex-col h-screen text-white overflow-hidden"
+            style={{
+                marginLeft: state === "expanded" ? "16rem" : "4rem", // Adjust based on sidebar state
+            }}
+        >
             <div className="flex-grow overflow-hidden">
                 <ChatWindow prompts={prompts} isLoading={isLoading}/>
             </div>

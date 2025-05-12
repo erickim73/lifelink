@@ -7,7 +7,6 @@ import { NewChatMessage } from '../lib/types';
 import { createNewSession } from '../utils/createNewSession';
 import { useRouter } from 'next/navigation';
 import { useSidebar } from '@/components/ui/sidebar';
-import lifelink_logo from '@/public/lifelink_logo.png'
 import Image from 'next/image';
 
 export default function MainChat() {
@@ -124,16 +123,14 @@ export default function MainChat() {
             }}
         >
             <div className="flex flex-col items-center justify-center h-full w-full">
-                <div className="w-full max-w-[80%] px-4">
+                <div className="w-full max-w-[70%] px-4">
                     <div className="flex items-center justify-center gap-4 mb-10">
-                        <Image
-                            alt="LifeLink Logo"
-                            src={lifelink_logo}
-                            style={{
-                                width: 'auto',
-                                height: '40px'
-                            }}
-                        />
+                    <Image
+                        alt="LifeLink Logo"
+                        src="/lifelink_logo.png"
+                        width={40} 
+                        height={40}
+                    />
                         <h1 className="text-3xl sm:text-4xl font-semibold">What can I help you with?</h1>
                     </div>
             
