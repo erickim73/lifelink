@@ -27,7 +27,7 @@ const MessageInput: React.FC<MessageInputProps> = ({value, isLoading, onChange, 
     }, [value])
 
     return (
-        <div className="flex flex-col items-center justify-center h-full w-full">
+        <div className="flex flex-col items-center justify-center h-full w-full bg-zinc-900">
             <div className="w-full max-w-[70%] px-4">
                 <form onSubmit={onSubmit} className="w-full">
                     <div className="relative w-full flex flex-col bg-zinc-800 rounded-2xl px-5 py-3 mb-0 shadow-lg border border-zinc-700">

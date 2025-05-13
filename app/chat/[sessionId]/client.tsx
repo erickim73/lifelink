@@ -42,7 +42,7 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
 
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [prompts])
+    }, [newPrompt.content])
 
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
@@ -140,48 +140,49 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
                 body: JSON.stringify({
                     newPrompt: promptContent,
                     userProfile: profileData,
-                    sessionId: sessionId  
                 })
             })
+
 
             const reader = res.body?.getReader()
             const decoder = new TextDecoder('utf-8')
             let streamedContent = ''
+
+            let hasStartedStreaming = false;
 
             if (reader) {
                 while (true) {
                     const {value, done} = await reader.read()
                     if (done) break
 
-                    const chunk = decoder.decode(value, {stream: true})
-                    const matches = [...chunk.matchAll(/data: (.*)\n\n/g)]
+                    const clean = decoder.decode(value, { stream: true }).replace(/^data:\s?/gm, "");
 
-                    for (const match of matches) {
-                        const text = match[1]
-                        if (text === '[DONE]') {
-                            break
-                        }
-
-                        streamedContent += text
-
-                        setPrompts((prev) => {
-                            const last = prev[prev.length - 1]
-                            if (last?.sender === 'model') {
-                                // edit last model message
-                                return [...prev.slice(0, -1), {...last, content: streamedContent}]
-                            } else {
-                                // append new model message
-                                return [...prev, {
-                                    message_id: crypto.randomUUID(),
-                                    session_id: sessionId,
-                                    user_id: authSession.user.id,
-                                    sender: 'model',
-                                    content: text,
-                                    created_at: new Date().toISOString()
-                                }]
-                            }
-                        })
+                    if (clean.trim() === '[DONE]') continue;
+        
+                    if (!hasStartedStreaming && clean.trim()) {
+                        hasStartedStreaming = true;
+                        setIsLoading(false); 
                     }
+
+                    streamedContent += clean;
+
+                    setPrompts((prev) => {
+                        const last = prev[prev.length - 1]
+                        if (last?.sender === 'model') {
+                            // edit last model message
+                            return [...prev.slice(0, -1), {...last, content: streamedContent}]
+                        } else {
+                            // append new model message
+                            return [...prev, {
+                                message_id: crypto.randomUUID(),
+                                session_id: sessionId,
+                                user_id: authSession.user.id,
+                                sender: 'model',
+                                content: clean,
+                                created_at: new Date().toISOString()
+                            }]
+                        }
+                    })
                 }
             }
 
@@ -191,7 +192,7 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
                     session_id: sessionId,
                     user_id: authSession.user.id,
                     sender: 'model',
-                    content: streamedContent.replace(/^\s+/, '').replace(/([.?!])(?=[^\s])/g, '$1 ')  //remove leading white space and ensure sentences have spaces
+                    content: streamedContent.trimStart()
                 }
                 await supabase.from("chat_messages").insert(finalModelMessage)
                 console.log("Inserted model message: ", finalModelMessage)
@@ -260,40 +261,41 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
             const decoder = new TextDecoder('utf-8')
             let streamedContent = ''
 
+            let hasStartedStreaming = false;
+
             if (reader) {
                 while (true) {
                     const {value, done} = await reader.read()
                     if (done) break
 
-                    const chunk = decoder.decode(value, {stream: true})
-                    const matches = [...chunk.matchAll(/data: (.*)\n\n/g)]
+                    const clean = decoder.decode(value, { stream: true }).replace(/^data:\s?/gm, "");
 
-                    for (const match of matches) {
-                        const text = match[1]
-                        if (text === '[DONE]') {
-                            break
-                        }
-
-                        streamedContent += text
-
-                        setPrompts((prev) => {
-                            const last = prev[prev.length - 1]
-                            if (last?.sender === 'model') {
-                                // edit last model message
-                                return [...prev.slice(0, -1), {...last, content: streamedContent}]
-                            } else {
-                                // append new model message
-                                return [...prev, {
-                                    message_id: crypto.randomUUID(),
-                                    session_id: sessionId,
-                                    user_id: authSession.user.id,
-                                    sender: 'model',
-                                    content: text,
-                                    created_at: new Date().toISOString()
-                                }]
-                            }
-                        })
+                    if (clean.trim() === '[DONE]') continue;
+        
+                    if (!hasStartedStreaming && clean.trim()) {
+                        hasStartedStreaming = true;
+                        setIsLoading(false); 
                     }
+
+                    streamedContent += clean;
+
+                    setPrompts((prev) => {
+                        const last = prev[prev.length - 1]
+                        if (last?.sender === 'model') {
+                            // edit last model message
+                            return [...prev.slice(0, -1), {...last, content: streamedContent}]
+                        } else {
+                            // append new model message
+                            return [...prev, {
+                                message_id: crypto.randomUUID(),
+                                session_id: sessionId,
+                                user_id: authSession.user.id,
+                                sender: 'model',
+                                content: clean,
+                                created_at: new Date().toISOString()
+                            }]
+                        }
+                    })
                 }
             }
 
@@ -302,10 +304,11 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
                     session_id: sessionId,
                     user_id: authSession.user.id,
                     sender: 'model',
-                    content: streamedContent.replace(/^\s+/, '').replace(/([.?!])(?=[^\s])/g, '$1 ')  //remove leading white space and ensure sentences have spaces
+                    content: streamedContent.trimStart()    
                 }
                 await supabase.from("chat_messages").insert(finalModelMessage)
                 console.log("Inserted model message: ", finalModelMessage)
+                console.log("Final streamed content: ", finalModelMessage.content)
             }
 
         } catch (error) {

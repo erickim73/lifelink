@@ -117,7 +117,7 @@ export default function MainChat() {
     }
 
     return (
-        <div className="fixed inset-0"
+        <div className="fixed inset-0 bg-zinc-900"
             style={{
                 marginLeft: state === "expanded" ? "16rem" : "4rem", // 64px or 16px for sidebar
             }}
