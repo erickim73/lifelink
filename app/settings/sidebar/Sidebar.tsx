@@ -9,7 +9,7 @@ const tabs = [
     { id: 'privacy', label: 'Privacy' }, 
     { id: 'security', label: 'Security' },
 ];
-const SideBar = ({activeTab, setActiveTab}: SettingsSideBar) => {
+const Sidebar = ({activeTab, setActiveTab}: SettingsSideBar) => {
     return (
         <div className="w-full mb-6 md:mb-0">
                 <nav className="space-y-1">
@@ -19,7 +19,7 @@ const SideBar = ({activeTab, setActiveTab}: SettingsSideBar) => {
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center w-full px-4 py-3 text-base font-medium rounded-lg transition-colors duration-200 ${
                                 activeTab === tab.id
-                                    ? 'bg-zinc-800 text-white' // Active tab is darker background
+                                    ? 'bg-black/60 text-white' // Active tab is darker background
                                     : 'text-gray-300 hover:bg-zinc-800/70' // Made inactive tabs lighter gray with hover effect
                             }`}
                         >
@@ -34,4 +34,4 @@ const SideBar = ({activeTab, setActiveTab}: SettingsSideBar) => {
     )
 }
 
-export default SideBar
+export default Sidebar
