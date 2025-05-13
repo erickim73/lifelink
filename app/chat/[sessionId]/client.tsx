@@ -261,7 +261,6 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
             const decoder = new TextDecoder('utf-8')
             let streamedContent = ''
 
-            let hasStartedStreaming = false;
 
             if (reader) {
                 while (true) {
@@ -271,11 +270,6 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
                     const clean = decoder.decode(value, { stream: true }).replace(/^data:\s?/gm, "");
 
                     if (clean.trim() === '[DONE]') continue;
-        
-                    if (!hasStartedStreaming && clean.trim()) {
-                        hasStartedStreaming = true;
-                        setIsLoading(false); 
-                    }
 
                     streamedContent += clean;
 

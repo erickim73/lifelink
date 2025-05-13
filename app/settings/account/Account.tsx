@@ -17,27 +17,33 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
     }
 
     return (
-        <div className="space-y-6">
-            <h2 className="text-xl font-semibold mb-4">Account Settings</h2>
+        <div className="space-y-6 w-full">
+            <h2 className="text-2xl font-semibold mb-6">Account Settings</h2>
                                 
-            <div className="space-y-4">
-                <div className="flex items-center justify-between py-3">
+            <div className="space-y-6">
+            <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Bell className="w-5 h-5" />
-                        <span>Notifications</span>
+                        <span className="font-medium">Notifications</span>
                     </div>
                     <button 
                         onClick={() => setNotifications(!notifications)}
-                        className={`mx-2 relative inline-flex h-6 w-11 items-center rounded-full ${notifications ? 'bg-blue-600' : 'bg-gray-200'}`}
+                        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${notifications ? 'bg-blue-600' : 'bg-gray-600'}`}
+                        aria-label={notifications ? "Disable notifications" : "Enable notifications"}
                     >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${notifications ? 'translate-x-6' : 'translate-x-1'}`} />
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${notifications ? 'translate-x-6' : 'translate-x-1'}`} />
                     </button>
                     
                 </div>
                                 
-                <motion.button onClick={logout} className="flex items-center gap-3 text-red-500 py-3 hover:bg-gray-900" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.button 
+                    onClick={logout} 
+                    className="flex items-center gap-3 text-red-500 py-2" 
+                    whileHover={{ scale: 1.02 }} 
+                    whileTap={{ scale: 0.98 }}
+                >
                     <LogOut className="w-5 h-5" />
-                    <span>Log Out</span>
+                    <span className="font-medium">Log Out</span>
                 </motion.button>
             </div>
         </div>

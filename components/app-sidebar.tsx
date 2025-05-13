@@ -20,7 +20,7 @@ const COLORS = {
     newChat: {
         bg: "bg-[#1A4B84]",
         text: "text-[#1A4B84]",
-        hover: "hover:bg-[#496687]",
+        hover: "hover:bg-[#151E30]",
     },
 }
 
@@ -33,7 +33,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const {open} = useSidebar()
     const isCollapsed = !open
 
-    const noSideBarRoutes = ['/onboarding', '/profile', '/settings/profile', '/settings']
+    const noSideBarRoutes = ['/onboarding', ]
     const noSideBarPage = noSideBarRoutes.includes(pathname || "")
 
     useEffect(() => {
@@ -177,23 +177,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     return (
         <Sidebar collapsible="icon" className={`border-r ${COLORS.border} ${COLORS.background} text-white`} {...props}>
-            <SidebarHeader className="p-2.5 pt-3 flex-shrink-0 ">
+            <SidebarHeader className="p-1.5 pt-3 flex-shrink-0 ">
                 <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
                         <div className={`flex items-center justify-center h-8 w-8 rounded-md ${COLORS.hover} transition-colors`}>
                             <SidebarTrigger className="h-5 w-5 text-white/80 hover:text-white" />
                         </div>
-                        {!isCollapsed && <span className="text-lg font-semibold text-white tracking-tight">LifeLink</span>}
+                        {!isCollapsed && (
+                            <span className="text-lg font-semibold text-white tracking-tight">
+                                <Link href = '/chat'>
+                                    LifeLink
+                                </Link>
+                            </span>
+                    )}
                     </div>
                 </div>
                 <div className="mb-2 mt-1">
                     <Link 
                         href="/chat" 
-                        className={`flex items-center gap-3 px-2 py-2.5 rounded-lg ${!isCollapsed ? COLORS.newChat.text : ""} ${COLORS.newChat.hover} transition-colors`}
+                        className={`flex items-center gap-2 px-2 py-2.5 rounded-lg ${!isCollapsed ? COLORS.newChat.text : ""} ${COLORS.newChat.hover} transition-colors`}
                         title="New chat"
                     >
                         <div className={`flex items-center justify-center w-5 h-5 ${COLORS.newChat.bg} rounded-full`}>
-                            <Plus className="h-4 w-4 text-white" />
+                            <Plus className="h-4 w-43 text-white" />
                         </div>
                         {!isCollapsed && (
                             <span className="text-balance font-medium">New chat</span>

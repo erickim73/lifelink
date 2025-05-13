@@ -13,6 +13,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(true)
     const [isEditing, setIsEditing] = useState(false)
     const [formState, setFormState] = useState<UserFormData | null>(null)
+    const [isSaving, setIsSaving] = useState(false)
 
 
     useEffect(() => {
@@ -72,6 +73,8 @@ const Profile = () => {
         }
 
         try {
+            setIsSaving(true)
+
             const {error} = await supabase.from('profiles').update({
                 first_name: formState.firstName,
                 last_name: formState.lastName,
@@ -94,6 +97,8 @@ const Profile = () => {
         } catch (error) {
             console.error('Error in save operation:', error);
             alert("An unexpected error occurred.");
+        } finally {
+            setIsSaving(true)
         }
     }
 
@@ -110,7 +115,7 @@ const Profile = () => {
 
     if (loading) {
         return (
-          <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="flex items-center justify-center h-full w-full">
             <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
           </div>
         )
@@ -118,18 +123,18 @@ const Profile = () => {
 
     if (!authSession) {
         return (
-          <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
-            <Shield className="w-12 h-12 mb-4 text-red-400" />
-            <h1 className="text-2xl font-bold mb-2">Authentication Required</h1>
-            <p className="text-gray-400">Please sign in to view your profile</p>
-          </div>
-        )
+            <div className="flex flex-col items-center justify-center h-full w-full text-white">
+                <Shield className="w-12 h-12 mb-4 text-red-400" />
+                <h1 className="text-2xl font-bold mb-2">Authentication Required</h1>
+                <p className="text-gray-400">Please sign in to view your profile</p>
+            </div>
+          )
     }
 
     
 
     return (
-        <div className="min-h-screen w-full bg-gray-900 text-white p-6">
+        <div className="w-full">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="bg-gray-800 rounded-lg p-6 mb-6 shadow-lg">
@@ -150,6 +155,7 @@ const Profile = () => {
                     userData={userData}
                     formState={formState}
                     isEditing={isEditing}
+                    isSaving={isSaving}
                     handleInputChange={handleInputChange}
                     toggleEditMode={toggleEditMode}
                     handleSaveChanges={handleSaveChanges}

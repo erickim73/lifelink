@@ -55,28 +55,29 @@ export function NavUser({user}: {user: {name: string, email: string, initials: s
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <Link href = '/profile' className="flex w-full items-center gap-2 px-2">
+                <Link href = '/profile' className="flex w-full items-center gap-2 ">
                   <User className="size-5" />
                   <span>Profile</span>
                 </Link>
                 
-                
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href = '/settings/profile' className="flex w-full items-center gap-2 px-2">
+                <Link href = '/settings/' className="flex w-full items-center gap-2 ">
                   <Settings className="size-5" />
                   <span>Settings</span>
                 </Link>
               </DropdownMenuItem>
+
               <DropdownMenuItem>
-                <Link href = '/termsofservice' className="flex w-full items-center gap-2 px-2">
+                <Link href = '/termsofservice' className="flex w-full items-center gap-2 ">
                     <HelpCircle className="size-5" />
                     <span>Terms of Service</span>
                 </Link>
               </DropdownMenuItem>
+
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout} className="flex w-full items-center gap-2 px-2 py-2 cursor-pointer">
+            <DropdownMenuItem onClick={logout} className="flex w-full items-center gap-2 px-2.5 py-2 cursor-pointer">
               <LogOut className="size-5" />
               <span>Log out</span>
             </DropdownMenuItem>

@@ -50,6 +50,7 @@ export interface ProfileDetailProps {
     userData: UserFormData | null
     formState: UserFormData | null
     isEditing: boolean
+    isSaving: boolean
     handleInputChange: (field: keyof UserFormData, value: string) => void
     toggleEditMode: () => void
     handleSaveChanges: () => void
@@ -58,13 +59,8 @@ export interface ProfileDetailProps {
 export interface SettingsSideBar {
     activeTab: string;
     setActiveTab: (tab: string) => void
-    darkMode: boolean;
 }
 
-export interface SettingsAppearance {
-    darkMode: boolean
-    setDarkMode: (val: boolean) => void
-}
 
 export interface SettingsAccount {
     notifications: boolean
