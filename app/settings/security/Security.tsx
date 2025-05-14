@@ -7,13 +7,15 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@radix-ui/react-separator'
 import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import Link from 'next/link'
 
 
 const Security = () => {
+
     const [session, setSession] = useState<Session | null>(null)
     const [showConfirmation, setShowConfirmation] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [error, setError] = useState<string | null>(null)    
 
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
@@ -85,9 +87,11 @@ const Security = () => {
                             <p className="text-gray-400 mb-4">
                                 We recommend using a strong, unique password and enabling two-factor authentication when available.
                             </p>
-                            <Button variant="outline" className="text-blue-500 border-blue-500/30 hover:bg-blue-500/10">
-                                Change Password
-                            </Button>
+                            <Link href='/reset'>
+                                <Button variant="outline" className="text-blue-500 border-blue-500/30 hover:bg-blue-500/10">
+                                    Change Password
+                                </Button>
+                            </Link>
                         </div>
                     </div>
 

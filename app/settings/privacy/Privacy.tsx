@@ -1,6 +1,6 @@
 "use client"
 
-import { Shield, Lock, Eye, FileText } from "lucide-react"
+import { Shield, Lock, Eye } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 
@@ -67,19 +67,7 @@ const Privacy = () => {
                                     You&apos;ll always be in control and can turn off these features in your account settings.
                                 </li>
                             </ul>
-                        </div>
-
-                        <div className="mt-6 rounded-lg border border-blue-800/30 bg-blue-900/20 p-4">
-                            <div className="flex items-start gap-3">
-                                <FileText className="h-5 w-5 text-blue-400 mt-0.5" />
-                                <div>
-                                    <h4 className="font-medium text-blue-300">Privacy Policy</h4>
-                                    <p className="text-sm text-blue-200/80 mt-1">
-                                        For more detailed information about our data practices, please review our full Privacy Policy.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                        </div>                        
                     </div>
                 </CardContent>
             </Card>
