@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { Session } from '@supabase/supabase-js'
 import { supabase } from '@/app/lib/supabase-client'
-import { AlertTriangle, X } from 'lucide-react'
+import { AlertTriangle, Key, Shield, X } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from '@/components/ui/button'
+import { Separator } from '@radix-ui/react-separator'
+import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 
 const Security = () => {
@@ -60,74 +65,96 @@ const Security = () => {
 
     
     return (
-        <div className="max-w-md mx-auto mt-8 p-6 ">
-            <h2 className="text-2xl font-bold text-red-600 mb-6">Account Security</h2>
-            
-            <div className="border-t border-gray-200 pt-4">
-                <p className="text-white mb-4">
-                    Once you delete your account, there is no going back. Please be certain.
-                </p>
-                
-                <button 
-                    onClick={openConfirmation}
-                    className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md transition-colors duration-300 flex items-center"
-                >
-                    <AlertTriangle className="mr-2 h-4 w-4" />
-                    Delete Account
-                </button>
-            </div>
+        <div className="h-full w-full p-6 overflow-y-auto">
+            <Card className="w-full">
+                <CardHeader>
+                    <div className="flex items-center gap-2">
+                        <Shield className="h-5 w-5 text-blue-500" />
+                        <CardTitle>Security Settings</CardTitle>
+                    </div>
+                    <CardDescription>Manage your account security and protection</CardDescription>
+                </CardHeader>
 
-            {/* Confirmation Modal */}
-            {showConfirmation && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-bold text-red-600">Confirm Account Deletion</h3>
-                            <button 
-                                onClick={closeConfirmation}
-                                className="text-gray-500 hover:text-gray-700"
-                            >
-                                <X className="h-5 w-5" />
-                            </button>
+                <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <Key className="h-5 w-5 text-blue-500" />
+                            <h3 className="text-xl font-medium">Password & Authentication</h3>
                         </div>
-                        
-                        <div className="mb-6">
-                            <div className="flex items-center mb-4 bg-gray-700 p-3 rounded-md">
-                                <AlertTriangle className="text-red-500 mr-3 h-6 w-6" />
-                                <p className="text-red-600">This action cannot be undone. All data will be permanently deleted.</p>
-                            </div>
-                            
-                            <p className="text-gray-600 mb-2">
-                                Are you absolutely sure you want to delete your account?
+                        <div className="rounded-lg border border-zinc-800 p-4">
+                            <p className="text-gray-400 mb-4">
+                                We recommend using a strong, unique password and enabling two-factor authentication when available.
                             </p>
-                        </div>
-                        
-                        {error && (
-                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                                {error}
-                            </div>
-                        )}
-                        
-                        <div className="flex justify-end space-x-3">
-                            <button
-                                onClick={closeConfirmation}
-                                className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md transition-colors duration-300"
-                                disabled={isDeleting}
-                            >
-                                Cancel
-                            </button>
-                            
-                            <button 
-                                onClick={deleteAccount}
-                                className={`bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md transition-colors duration-300 flex items-center ${isDeleting ? 'opacity-75 cursor-not-allowed' : ''}`}
-                                disabled={isDeleting}
-                            >
-                                {isDeleting ? 'Deleting...' : 'Yes, Delete My Account'}
-                            </button>
+                            <Button variant="outline" className="text-blue-500 border-blue-500/30 hover:bg-blue-500/10">
+                                Change Password
+                            </Button>
                         </div>
                     </div>
-                </div>
-            )}
+
+                    <Separator className="my-6" />
+
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-red-500" />
+                            <h3 className="text-xl font-medium text-red-500">Danger Zone</h3>
+                        </div>
+                        <div className="rounded-lg border border-red-900/30 bg-red-950/20 p-4">
+                            <p className="text-gray-300 mb-4">
+                                Once you delete your account, there is no going back. All of your data will be permanently removed.
+                            </p>
+                            <Button
+                                variant="destructive"
+                                onClick={openConfirmation}
+                                className="bg-red-600 hover:bg-red-700 text-white"
+                            >
+                                <AlertTriangle className="mr-2 h-4 w-4" />
+                                Delete Account
+                            </Button>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-red-500">Confirm Account Deletion</DialogTitle>
+                        <DialogDescription>
+                            This action cannot be undone. This will permanently delete your account and remove your data from our
+                            servers.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="py-4">
+                        <Alert variant="destructive" className="bg-red-950/30 border-red-900/50 text-red-200">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertDescription>
+                                All your personal information, chat history, and settings will be permanently deleted.
+                            </AlertDescription>
+                        </Alert>
+                    </div>
+
+                    {error && (
+                        <Alert variant="destructive" className="mt-2">
+                            <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                    )}
+
+                    <DialogFooter className="sm:justify-end">
+                        <Button variant="outline" onClick={closeConfirmation} disabled={isDeleting}>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={deleteAccount}
+                            disabled={isDeleting}
+                            className="bg-red-600 hover:bg-red-700"
+                        >
+                            {isDeleting ? "Deleting..." : "Yes, Delete My Account"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
