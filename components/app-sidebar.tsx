@@ -33,7 +33,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const {open} = useSidebar()
     const isCollapsed = !open
 
-    const noSideBarRoutes = ['/onboarding', ]
+    const noSideBarRoutes = ['/onboarding', '/signup', '/login']
     const noSideBarPage = noSideBarRoutes.includes(pathname || "")
 
     useEffect(() => {
@@ -63,20 +63,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 setChatSessionIds(data || []);
             })
 
-            supabase.from('profiles').select('first_name, last_name').eq('user_id', sessionId?.user.id).single().then(({data, error}) => {
+            supabase.from('profiles').select('first_name, last_name').eq('user_id', sessionId?.user.id).then(({data, error}) => {
+                console.log(data, error)
                 if (error) {
                     console.error("Error fetching user profile: ", error)
                     return
                 }
 
-                const profile: UserProfile = {
-                    name: `${data.first_name} ${data.last_name}`,
-                    email: sessionId.user.email || "",
-                    initials: `${data.first_name[0]}${data.last_name[0]}`.toUpperCase(),
-
+                                  
+                if (data && data.length > 0) {
+                    const user = data[0]
+                    setUserData({
+                        name: `${user.first_name} ${user.last_name}`,
+                        email: sessionId.user.email ?? "",
+                        initials: `${user.first_name.charAt(0)}${user.last_name.charAt(0)}`,
+                    })
+                } else {
+                    console.error("No user profile found")
                 }
-
-                setUserData(profile)
             })
         } catch (error) {
             console.error("Error fetching chat session or user profile: ", error)
@@ -271,7 +275,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 )}
                                 {groupedSessions.sevenDays?.length > 0 && (
                                     <>
-                                        <div className="px-3 py-1 mt-2 text-xs font-medium text-muted-foreground">Previous 7 Days</div>
+                                        <div className="px-3 py-1 mt-2 text-xs font-bold text-muted-foreground">Previous 7 Days</div>
                                         {groupedSessions.sevenDays.map((session) => (
                                             <SidebarMenuItem key={session.session_id}>
                                                 <SidebarMenuButton
@@ -280,7 +284,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                                     tooltip={isCollapsed ? formatDate(session.updated_at) : undefined}
                                                     className='group'
                                                 >
-                                                    <Link href={`/chat/${session.session_id}`} className="flex items-center">
+                                                    <Link href={`/chat/${session.session_id}`} className="flex items-center font-normal">
                                                         <div className="flex items-center justify-center h-5 w-5 rounded-full bg-muted/20 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
                                                             <MessageSquare className="h-3.5 w-3.5" />
                                                         </div>

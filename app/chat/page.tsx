@@ -123,7 +123,7 @@ export default function MainChat() {
             }}
         >
             <div className="flex flex-col items-center justify-center h-full w-full">
-                <div className="w-full max-w-[70%] px-4">
+                <div className="w-full max-w-[63%] px-4">
                     <div className="flex items-center justify-center gap-4 mb-10">
                     <Image
                         alt="LifeLink Logo"
