@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css"
 
 const geistSans = Geist({
@@ -34,6 +35,7 @@ export default function RootLayout({
             <div className="flex h-screen w-full">
               <AppSidebar />
               <main className="flex-1 overflow-hidden">{children}</main>
+              <Toaster />
             </div>
           </SidebarProvider>
         </ThemeProvider>

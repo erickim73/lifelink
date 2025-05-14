@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Session } from '@supabase/supabase-js'
 import { supabase } from '@/app/lib/supabase-client'
-import { AlertTriangle, Key, Shield, X } from 'lucide-react'
+import { AlertTriangle, Key, Shield } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from '@/components/ui/button'
 import { Separator } from '@radix-ui/react-separator'

@@ -5,14 +5,13 @@ import { supabase } from '../../lib/supabase-client'
 import { UserFormData } from '../../lib/types';
 import { Session } from '@supabase/supabase-js';
 import { Loader2, Shield, Save, X} from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import {Textarea} from "@/components/ui/textarea"
-
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
 
 
 const Profile = () => {
@@ -22,6 +21,7 @@ const Profile = () => {
     const [isEditing, setIsEditing] = useState(false)
     const [formState, setFormState] = useState<UserFormData | null>(null)
     const [isSaving, setIsSaving] = useState(false)
+    const router = useRouter()
 
 
     useEffect(() => {
@@ -62,6 +62,16 @@ const Profile = () => {
         }
         fetchData()
     }, [])
+
+    useEffect(() => {
+        if (loading) {
+            return
+        }
+        if (!authSession) {
+            console.log("No session found, redirecting to login")
+            router.replace('/login')
+        }
+    }, [authSession, loading, router])
 
     const handleInputChange = useCallback((field: keyof UserFormData, value: string) => {
         if (!formState) {
@@ -123,9 +133,9 @@ const Profile = () => {
 
     if (loading) {
         return (
-        <div className="flex items-center justify-center h-full w-full">
-            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-          </div>
+            <div className="flex items-center justify-center h-full w-full">
+                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+            </div>
         )
     }
 
@@ -137,17 +147,15 @@ const Profile = () => {
                 <p className="text-gray-400">Please sign in to view your profile</p>
             </div>
           )
-    }
-
-    
+    }    
 
     return (
-        <div className="h-full w-full p-6 overflow-y-auto">
-            <Card className="w-full">
+        <div className="h-full w-full p-6 overflow-y-auto ">
+            <Card className="w-full bg-zinc-900">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                         <CardTitle>Profile</CardTitle>
-                        <CardDescription>Manage your personal information and preferences</CardDescription>
+                        <CardDescription className = 'py-1'>Manage your personal information and preferences</CardDescription>
                     </div>
                     <div className="flex gap-2">
                         {isEditing ? (
@@ -172,7 +180,7 @@ const Profile = () => {
                 <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <Label htmlFor="firstName">First Name</Label>
+                            <Label htmlFor="firstName" >First Name</Label>
                             <Input
                                 id="fullName"
                                 value={formState?.firstName || ''}
@@ -193,34 +201,35 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="gender">Gender</Label>                                        
-                                <Select value={formState?.gender || ''} disabled={!isEditing} onValueChange={(value) => handleInputChange('gender', value)}>
-                            <SelectTrigger id="gender">
-                                <SelectValue placeholder="Select your gender" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Male">Male</SelectItem>
-                                <SelectItem value="Female">Female</SelectItem>
-                                <SelectItem value="Non-binary">Non-binary</SelectItem>
-                                <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                        <div className="space-y-2">
+                            <Label htmlFor="gender">Gender</Label>
+                                    <Select value={formState?.gender || ''} disabled={!isEditing} onValueChange={(value) => handleInputChange('gender', value)}>
+                                <SelectTrigger id="gender" className="w-full">
+                                    <SelectValue placeholder="Select your gender" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Male">Male</SelectItem>
+                                    <SelectItem value="Female">Female</SelectItem>
+                                    <SelectItem value="Non-binary">Non-binary</SelectItem>
+                                    <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="dob">Date of Birth</Label>
+                            <Input
+                                id="dob"
+                                type="date"
+                                value={formState?.dob || ""}
+                                onChange={(e) => handleInputChange("dob", e.target.value)}
+                                disabled={!isEditing}
+                                className="w-full"
+                            />
+                        </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="dob">Date of Birth</Label>
-                        <Input
-                            id="dob"
-                            type="date"
-                            value={formState?.dob || ""}
-                            onChange={(e) => handleInputChange("dob", e.target.value)}
-                            disabled={!isEditing}
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="space-y-2">
+                    <div className="space-y-3 mt-2">
                         <Label htmlFor="medicalConditions">Medical Conditions</Label>
                         <Textarea
                             id="medicalConditions"
@@ -232,7 +241,7 @@ const Profile = () => {
                         />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-3 mt-2">
                         <Label htmlFor="medications">Medications</Label>
                         <Textarea
                         id="medications"
@@ -244,7 +253,7 @@ const Profile = () => {
                         />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-3 mt-2">
                         <Label htmlFor="healthGoals">Health Goals</Label>
                         <Textarea
                         id="healthGoals"
