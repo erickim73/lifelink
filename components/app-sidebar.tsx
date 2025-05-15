@@ -13,17 +13,21 @@ import { UserProfile } from '../app/lib/types';
 import { MessageSquare, Plus } from "lucide-react"
 import { Badge } from "./ui/badge";
 
+// Consolidated color variables for consistent theming
 const COLORS = {
     background: "bg-[#0F172A]",
     border: "border-[#2A3441]",
     hover: "hover:bg-[#334155]",
+    muted: "text-white/60",
     newChat: {
         bg: "bg-[#1A4B84]",
-        text: "text-[#1A4B84]",
+        text: "text-white",
         hover: "hover:bg-[#151E30]",
     },
 }
 
+// Custom scrollbar styles to be reused
+const SCROLLBAR_STYLES = "[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-500/40 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const [chatSessionIds, setChatSessionIds] = useState<ChatSession[]>([])
@@ -100,7 +104,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }, [sessionId, noSideBarPage])
 
     useEffect(() => {
-
         const channel = supabase.channel('realtime_chat').on('postgres_changes',
             {
                 event: 'INSERT',
@@ -129,7 +132,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         sevenDays.setDate(sevenDays.getDate() - 7)
         const thirtyDays = new Date(now)
         thirtyDays.setDate(thirtyDays.getDate() - 30)
-
 
         // if today, show time only
         if (date.toDateString() === now.toDateString()) {
@@ -168,7 +170,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const thirtyDays = new Date()
     thirtyDays.setDate(thirtyDays.getDate() - 30)
 
-
     const groupedSessions = chatSessionIds.reduce((groups, session) => {
         const sessionDate = new Date(session.updated_at)
     
@@ -192,9 +193,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         return groups
     }, { today: [], yesterday: [], sevenDays: [], thirtyDays: [], older: [] } as Record<string, ChatSession[]>)
 
+    // Custom section header component for consistent styling
+    const SectionHeader = ({ title, count }: { title: string; count?: number }) => (
+        <div className="px-2 py-1 mt-2 first:mt-0 text-xs font-medium text-white/70">
+            <div className="flex items-center">
+                <span>{title}</span>
+                {count !== undefined && (
+                    <Badge variant="outline" className="ml-auto text-xs py-0 h-5">
+                        {count}
+                    </Badge>
+                )}
+            </div>
+        </div>
+    );
+
     return (
-        <Sidebar collapsible="icon" className={`border-r ${COLORS.border} ${COLORS.background} text-white`} {...props}>
-            <SidebarHeader className="p-1.5 pt-3 flex-shrink-0 ">
+        <Sidebar 
+            collapsible="icon" 
+            className={`border-r ${COLORS.border} ${COLORS.background} text-white ${SCROLLBAR_STYLES}`} 
+            {...props}
+        >
+            <SidebarHeader className="p-3.5 pt-3 flex-shrink-0">
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-1">
                         <div className={`flex items-center justify-center h-8 w-8 rounded-md ${COLORS.hover} transition-colors`}>
@@ -202,62 +221,63 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         </div>
                         {!isCollapsed && (
                             <span className="text-lg font-semibold text-white tracking-tight">
-                                <Link href = '/chat'>
+                                <Link href="/chat">
                                     LifeLink
                                 </Link>
                             </span>
-                    )}
+                        )}
                     </div>
                 </div>
                 <div className="mb-2 mt-1">
                     <Link 
                         href="/chat" 
-                        className={`flex items-center gap-2 px-2 py-2.5 rounded-lg ${!isCollapsed ? COLORS.newChat.text : ""} ${COLORS.newChat.hover} transition-colors`}
+                        className={`flex items-center gap-2 px-1.5 py-2.5 rounded-lg ${COLORS.newChat.hover} transition-colors`}
                         title="New chat"
                     >
                         <div className={`flex items-center justify-center w-5 h-5 ${COLORS.newChat.bg} rounded-full`}>
-                            <Plus className="h-4 w-43 text-white" />
+                            <Plus className="h-4 w-4 text-white" />
                         </div>
                         {!isCollapsed && (
-                            <span className="text-balance font-medium">New chat</span>
+                            <span className="text-balance font-medium text-white">New chat</span>
                         )}
                     </Link>
                 </div>
             </SidebarHeader>
 
-            <SidebarContent className='px-1 py-1'>               
-
+            <SidebarContent 
+                className={`px-1 py-1 overflow-y-auto max-h-[calc(100vh-150px)] ${SCROLLBAR_STYLES}`}
+            >               
                 {(chatSessionIds.length > 0 && !isCollapsed) && (
                     <SidebarGroup>
-                        <SidebarGroupLabel className="flex items-center gap-2">
-                            <span>Recent Chats </span>
+                        <SidebarGroupLabel className="flex items-center gap-2 text-xs text-white/70 px-2 py-1">
+                            <span>Recent Chats</span>
                             {chatSessionIds.length > 0 && (
-                                <Badge variant="outline" className="ml-auto text-xs">
+                                <Badge variant="outline" className="ml-auto text-xs py-0 h-5">
                                     {chatSessionIds.length}
                                 </Badge>
                             )}
                         </SidebarGroupLabel>
 
                         {chatSessionIds.length === 0 ? (
-                            <div className="px-3 py-2 text-sm text-muted-foreground italic">No recent chats</div>
-                        ): (
+                            <div className="px-3 py-2 text-sm text-white/60 italic">No recent chats</div>
+                        ) : (
                             <SidebarMenu>
                                 {groupedSessions.today?.length > 0 && (
                                     <>
-                                        <div className="px-2 py-1 text-small font-medium text-muted-foreground">Today</div>
+                                        <SectionHeader title="Today" />
                                         {groupedSessions.today.map((session) => (
                                             <SidebarMenuItem key={session.session_id}>
                                                 <SidebarMenuButton
                                                     asChild
                                                     isActive={pathname === `/chat/${session.session_id}`}
                                                     tooltip={isCollapsed ? formatDate(session.updated_at) : undefined}
-                                                    className='group'
+                                                    className="group"
                                                 >
                                                     <Link href={`/chat/${session.session_id}`} className="flex items-center">
-                                                        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-muted/20 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
+                                                        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-white/10 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
                                                             <MessageSquare className="h-3.5 w-3.5" />
                                                         </div>
-                                                        <span className="flex-1 truncate">{formatDate(session.updated_at)}</span>
+                                                        <span className="flex-1 truncate text-sm">{formatDate(session.updated_at)}</span>
                                                     </Link>
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
@@ -266,20 +286,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 )}
                                 {groupedSessions.yesterday?.length > 0 && (
                                     <>
-                                        <div className="px-2 py-1 mt-2 text-small font-medium text-muted-foreground">Yesterday</div>
+                                        <SectionHeader title="Yesterday" />
                                         {groupedSessions.yesterday.map((session) => (
                                             <SidebarMenuItem key={session.session_id}>
                                                 <SidebarMenuButton
                                                     asChild
                                                     isActive={pathname === `/chat/${session.session_id}`}
                                                     tooltip={isCollapsed ? formatDate(session.updated_at) : undefined}
-                                                    className='group'
+                                                    className="group"
                                                 >
                                                     <Link href={`/chat/${session.session_id}`} className="flex items-center">
-                                                        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-muted/20 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
+                                                        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-white/10 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
                                                             <MessageSquare className="h-3.5 w-3.5" />
                                                         </div>
-                                                        <span className="flex-1 truncate">{formatDate(session.updated_at)}</span>
+                                                        <span className="flex-1 truncate text-sm">{formatDate(session.updated_at)}</span>
                                                     </Link>
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
@@ -288,20 +308,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 )}
                                 {groupedSessions.sevenDays?.length > 0 && (
                                     <>
-                                        <div className="px-2 py-1 mt-2 text-small font-bold text-muted-foreground">Previous 7 Days</div>
+                                        <SectionHeader title="Previous 7 Days" />
                                         {groupedSessions.sevenDays.map((session) => (
                                             <SidebarMenuItem key={session.session_id}>
                                                 <SidebarMenuButton
                                                     asChild
                                                     isActive={pathname === `/chat/${session.session_id}`}
                                                     tooltip={isCollapsed ? formatDate(session.updated_at) : undefined}
-                                                    className='group'
+                                                    className="group"
                                                 >
-                                                    <Link href={`/chat/${session.session_id}`} className="flex items-center font-normal">
-                                                        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-muted/20 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
+                                                    <Link href={`/chat/${session.session_id}`} className="flex items-center">
+                                                        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-white/10 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
                                                             <MessageSquare className="h-3.5 w-3.5" />
                                                         </div>
-                                                        <span className="flex-1 truncate">{formatDate(session.updated_at)}</span>
+                                                        <span className="flex-1 truncate text-sm">{formatDate(session.updated_at)}</span>
                                                     </Link>
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
@@ -310,20 +330,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 )}
                                 {groupedSessions.thirtyDays?.length > 0 && (
                                     <>
-                                        <div className="px-2 py-1 mt-2 text-small font-medium text-muted-foreground">Previous 30 Days</div>
+                                        <SectionHeader title="Previous 30 Days" />
                                         {groupedSessions.thirtyDays.map((session) => (
                                             <SidebarMenuItem key={session.session_id}>
                                                 <SidebarMenuButton
                                                     asChild
                                                     isActive={pathname === `/chat/${session.session_id}`}
                                                     tooltip={isCollapsed ? formatDate(session.updated_at) : undefined}
-                                                    className='group'
+                                                    className="group"
                                                 >
                                                     <Link href={`/chat/${session.session_id}`} className="flex items-center">
-                                                        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-muted/20 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
+                                                        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-white/10 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
                                                             <MessageSquare className="h-3.5 w-3.5" />
                                                         </div>
-                                                        <span className="flex-1 truncate">{formatDate(session.updated_at)}</span>
+                                                        <span className="flex-1 truncate text-sm">{formatDate(session.updated_at)}</span>
                                                     </Link>
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
@@ -332,20 +352,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 )}
                                 {groupedSessions.older?.length > 0 && (
                                     <>
-                                        <div className="px-3 py-1 mt-2 text-xs font-medium text-muted-foreground">Older</div>
+                                        <SectionHeader title="Older" />
                                         {groupedSessions.older.map((session) => (
                                             <SidebarMenuItem key={session.session_id}>
                                                 <SidebarMenuButton
                                                     asChild
                                                     isActive={pathname === `/chat/${session.session_id}`}
                                                     tooltip={isCollapsed ? formatDate(session.updated_at) : undefined}
-                                                    className='group'
+                                                    className="group"
                                                 >
                                                     <Link href={`/chat/${session.session_id}`} className="flex items-center">
-                                                        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-muted/20 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
+                                                        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-white/10 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
                                                             <MessageSquare className="h-3.5 w-3.5" />
                                                         </div>
-                                                        <span className="flex-1 truncate">{formatDate(session.updated_at)}</span>
+                                                        <span className="flex-1 truncate text-sm">{formatDate(session.updated_at)}</span>
                                                     </Link>
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
@@ -356,7 +376,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         )}
                     </SidebarGroup>
                 )}
-                </SidebarContent>
+            </SidebarContent>
 
             <div className={`${isCollapsed ? "mt-auto" : ""}`}>
                 <SidebarSeparator className="mx-0 w-full" />
@@ -365,7 +385,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {userData && <NavUser user={userData} />}
                 </SidebarFooter>
             </div>
-        <SidebarRail className="!cursor-default pointer-events-none" />
-    </Sidebar>
+            <SidebarRail className="!cursor-default pointer-events-none" />
+        </Sidebar>
     );
 }

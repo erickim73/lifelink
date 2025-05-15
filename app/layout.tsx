@@ -27,19 +27,21 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <SidebarProvider>
-            <div className="flex h-screen w-full">
-              <AppSidebar />
-              <main className="flex-1 overflow-auto">{children}</main>
-              <Toaster />
-            </div>
-          </SidebarProvider>
-        </ThemeProvider>
-      </body>
-    </html>
-  )
+	return (
+		<html lang="en" suppressHydrationWarning>
+			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+					<SidebarProvider>
+						<div className="flex h-screen w-full overflow-hidden">
+							<AppSidebar />
+							<main className="flex-1 overflow-auto">
+								{children}
+							</main>
+							<Toaster />
+						</div>
+					</SidebarProvider>
+				</ThemeProvider>
+			</body>
+		</html>
+	)
 }
