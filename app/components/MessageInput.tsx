@@ -1,15 +1,15 @@
-import React, {useRef, useEffect} from 'react'
+import React, { useEffect} from 'react'
 
 interface MessageInputProps {
     value: string;
     isLoading: boolean;
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+    textareaRef: React.RefObject<HTMLTextAreaElement | null>
 }
 
 
-const MessageInput: React.FC<MessageInputProps> = ({value, isLoading, onChange, onSubmit}: MessageInputProps) => {
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
+const MessageInput: React.FC<MessageInputProps> = ({value, isLoading, onChange, onSubmit, textareaRef}: MessageInputProps) => {
 
     useEffect(() => {
         const adjustHeight = () => {

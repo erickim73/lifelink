@@ -1,325 +1,34 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { Session } from '@supabase/supabase-js';
-import { supabase } from '../../lib/supabase-client'
 import ChatWindow from '../../components/ChatWindow';
 import MessageInput from '../../components/MessageInput'
-import {ChatMessage, NewChatMessage} from '../../lib/types'
 import { useSidebar } from '@/components/ui/sidebar';
+import useChatSession from '../../lib/useChatSession';
+import { useTextareaAutoResize } from '@/app/lib/useTextareaAutoResize';
+import { useKeyboardFocus } from '../../lib/useKeyboardFocus';
 
  
 export default function ChatDetail({sessionId}: {sessionId: string}) {
-    const [authSession, setAuthSession] = useState<Session | null>(null)
-    const [prompts, setPrompts] = useState<ChatMessage[]>([])
     const [newPrompt, setNewPrompt] = useState({content: ''})
-    const [isLoading, setIsLoading] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const pendingResponseCheckedRef = useRef(false)
     const endRef = useRef<HTMLDivElement | null>(null)
-    const firstLoadRef = useRef(true)
     const {state} = useSidebar()
-    
 
-    useEffect(() => {
-        const adjustHeight = () => {
-            const textarea = textareaRef.current
-            if (textarea) {
-                textarea.style.height = 'auto'
-                const scrollHeight = textarea.scrollHeight
-                const maxHeight = 200
-                const newHeight = Math.min(maxHeight, scrollHeight)
-                textarea.style.height = `${newHeight}px`
-                textarea.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden'
-            }
-        }
-        adjustHeight()
-
-        const timeoutId = setTimeout(adjustHeight, 10) // Delay to ensure the height is adjusted after rendering
-
-        return () => clearTimeout(timeoutId)
-    }, [newPrompt.content])
+    const {prompts, isLoading, handleSubmit} = useChatSession({sessionId})
+    useTextareaAutoResize(textareaRef, newPrompt.content)
+    useKeyboardFocus(textareaRef)
 
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [newPrompt.content])
 
-    useEffect(() => {
-        supabase.auth.getSession().then(({data: {session}}) => {
-            setAuthSession(session)
-        })
-    }, [])
-
-    useEffect(() => {        
-        if (!sessionId) {
-            console.log("No chat session ID provided")
-            return
-        }
-
-        try {
-            supabase.from('chat_messages').select('*').eq('session_id', sessionId).order('created_at').then(({data, error}) => {
-                if (!error) {
-                    setPrompts(data as ChatMessage[])
-
-                    // if first message
-                    if (!pendingResponseCheckedRef.current && authSession?.user?.id && data && data.length > 0) {
-                        pendingResponseCheckedRef.current = true
-                        const lastMessage = data[data.length - 1] as ChatMessage
-
-                        if (lastMessage.sender === 'user') {
-                            console.log("Found pending user message, initiating AI response")
-                            initiateAIResponse(lastMessage.content, authSession.user.id)
-                        }
-                    }
-                    firstLoadRef.current = false
-                } else {
-                    console.error("Error fetching chat messages: ", error.message)
-                }
-            })
-        } catch (error) {
-            console.error("Error fetching chat session: ", error)
-        }
-    }, [sessionId, authSession])
-
-    useEffect(() => {
-        const channel = supabase.channel('realtime_chat').on('postgres_changes',
-            {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'chat_messages',
-                filter: `session_id=eq.${sessionId}`
-            },
-            (payload) => {
-                const newMsg = payload.new as ChatMessage
-                setPrompts((prev) => {
-                    // Check if the message already exists in our list to avoid duplicates
-                    if (!prev.some(msg => msg.message_id === newMsg.message_id)) {
-                        return [...prev, newMsg]
-                    }
-                    return prev
-                })
-            }
-        ).subscribe()
-    
-        return () => {
-            supabase.removeChannel(channel)
-        }
-    }, [sessionId])
-
-    const initiateAIResponse = async (promptContent: string, userId: string) => {
-        if (!authSession || !promptContent || !sessionId) {
-            return
-        }
-
-        setIsLoading(true)
-
-        try {
-            const {data: profileData, error: profileError} = await supabase.from('profiles').select("*").eq('user_id', userId).single()
-            
-            if (profileError || !profileData) {
-                console.error("Error fetching user profile: ", profileError)
-                return
-            }
-
-            const loadingMsgId = crypto.randomUUID()
-            setPrompts((prev) => [...prev, {
-                message_id: loadingMsgId,
-                session_id: sessionId,
-                user_id: userId,
-                sender: 'model',
-                content: '...',
-                created_at: new Date().toISOString()
-            }])
-
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/stream`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'text/event-stream',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    newPrompt: promptContent,
-                    userProfile: profileData,
-                })
-            })
-
-
-            const reader = res.body?.getReader()
-            const decoder = new TextDecoder('utf-8')
-            let streamedContent = ''
-
-            let hasStartedStreaming = false;
-
-            if (reader) {
-                while (true) {
-                    const {value, done} = await reader.read()
-                    if (done) break
-
-                    const clean = decoder.decode(value, { stream: true }).replace(/^data:\s?/gm, "");
-
-                    if (clean.trim() === '[DONE]') continue;
-        
-                    if (!hasStartedStreaming && clean.trim()) {
-                        hasStartedStreaming = true;
-                        setIsLoading(false); 
-                    }
-
-                    streamedContent += clean;
-
-                    setPrompts((prev) => {
-                        const last = prev[prev.length - 1]
-                        if (last?.sender === 'model') {
-                            // edit last model message
-                            return [...prev.slice(0, -1), {...last, content: streamedContent}]
-                        } else {
-                            // append new model message
-                            return [...prev, {
-                                message_id: crypto.randomUUID(),
-                                session_id: sessionId,
-                                user_id: authSession.user.id,
-                                sender: 'model',
-                                content: clean,
-                                created_at: new Date().toISOString()
-                            }]
-                        }
-                    })
-                }
-            }
-
-
-            if (streamedContent) {
-                const finalModelMessage: NewChatMessage = {
-                    session_id: sessionId,
-                    user_id: authSession.user.id,
-                    sender: 'model',
-                    content: streamedContent.trimStart()
-                }
-                await supabase.from("chat_messages").insert(finalModelMessage)
-                console.log("Inserted model message: ", finalModelMessage)
-            }            
-        } catch (error) {
-            console.error("Error getting response: ", error)
-            setPrompts((prev) => prev.filter(msg => msg.message_id !== 'temp-loading-message'))
-        } finally {
-            setIsLoading(false)
-        }
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const content = newPrompt.content
+        setNewPrompt({content: ""})
+        await handleSubmit(content)
     }
-
-    
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        console.log("Submitting prompt:", newPrompt.content)
-
-        if (!newPrompt.content.trim() || !authSession?.user.id || !sessionId) {
-            console.log("Prompt is empty or session/user ID is not available. Cannot submit prompt.")
-            console.log("Session:", authSession)
-            console.log("Chat Session ID:", sessionId)
-            return
-        }
-
-        console.log('Prompt:', newPrompt.content)
-        setIsLoading(true)
-        const promptContent = newPrompt.content
-        setNewPrompt({content: ''})
-        const user_id = authSession.user.id
-
-        try {
-            const newUserMessage: NewChatMessage = {
-                session_id: sessionId,
-                user_id: user_id,
-                sender: 'user',
-                content: promptContent
-            }
-
-            await supabase.from("chat_messages").insert(newUserMessage)
-            console.log("Inserted user message: ", newUserMessage)
-            setPrompts((p) => [...p, {...newUserMessage, message_id: crypto.randomUUID(), created_at: new Date().toISOString()}])
-
-            const { data: profileData, error: profileError } = await supabase.from('profiles').select('*').eq('user_id', user_id).single();
-            console.log("User profile data: ", profileData)
-
-            if (profileError || !profileData) {
-                console.error("Error fetching user profile: ", profileError);
-                setIsLoading(false);
-                return;
-            }
-
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/stream`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'text/event-stream',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    newPrompt: promptContent,
-                    userProfile: profileData,
-                    sessionId: sessionId
-                })
-            })
-
-            const reader = res.body?.getReader()
-            const decoder = new TextDecoder('utf-8')
-            let streamedContent = ''
-
-
-            if (reader) {
-                while (true) {
-                    const {value, done} = await reader.read()
-                    if (done) break
-
-                    const clean = decoder.decode(value, { stream: true }).replace(/^data:\s?/gm, "");
-
-                    if (clean.trim() === '[DONE]') continue;
-
-                    streamedContent += clean;
-
-                    setPrompts((prev) => {
-                        const last = prev[prev.length - 1]
-                        if (last?.sender === 'model') {
-                            // edit last model message
-                            return [...prev.slice(0, -1), {...last, content: streamedContent}]
-                        } else {
-                            // append new model message
-                            return [...prev, {
-                                message_id: crypto.randomUUID(),
-                                session_id: sessionId,
-                                user_id: authSession.user.id,
-                                sender: 'model',
-                                content: clean,
-                                created_at: new Date().toISOString()
-                            }]
-                        }
-                    })
-                }
-            }
-
-            if (streamedContent) {
-                const finalModelMessage: NewChatMessage = {
-                    session_id: sessionId,
-                    user_id: authSession.user.id,
-                    sender: 'model',
-                    content: streamedContent.trimStart()    
-                }
-                await supabase.from("chat_messages").insert(finalModelMessage)
-                console.log("Inserted model message: ", finalModelMessage)
-                console.log("Final streamed content: ", finalModelMessage.content)
-            }
-
-        } catch (error) {
-            console.error("Error inserting prompt:", error)
-        } finally {
-            setIsLoading(false)
-        }
-
-        const {error} = await supabase.from("chat_sessions").update({"updated_at": new Date().toISOString()}).eq("session_id", sessionId)
-        if (error) {
-            console.error("Error updating updated_at: ", error)
-        } else {
-            console.log("Successfully updated updated_at for session: ", sessionId)
-        }
-    }
-
-
 
     return (
         <div className="fixed inset-0 flex flex-col h-screen text-white overflow-hidden"
@@ -329,13 +38,15 @@ export default function ChatDetail({sessionId}: {sessionId: string}) {
         >
             <div className="flex-grow overflow-hidden">
                 <ChatWindow prompts={prompts} isLoading={isLoading}/>
+                <div ref={endRef}/>
             </div>
             <div className="flex-shrink-0">
                 <MessageInput
                     value={newPrompt.content}
                     isLoading={isLoading}
                     onChange={(e) => setNewPrompt({content: e.target.value})}
-                    onSubmit={handleSubmit}
+                    onSubmit={onSubmit}
+                    textareaRef={textareaRef}
                 />
             </div>
         </div>

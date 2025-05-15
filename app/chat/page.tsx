@@ -1,66 +1,28 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
-import { supabase } from '../lib/supabase-client';
-import { Session } from '@supabase/supabase-js'
-import { NewChatMessage } from '../lib/types';
-import { createNewSession } from '../utils/createNewSession';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useRef } from 'react'
+import { supabase } from '@/app/lib/supabase-client';
+import { NewChatMessage } from '@/app/lib/types';
+import { createNewSession } from '@/app/utils/createNewSession';
+import { useRouter } from 'next/navigation';
 import { useSidebar } from '@/components/ui/sidebar';
 import Image from 'next/image';
+import { useAuth } from '@/app/lib//useAuth';
+import { useTextareaAutoResize } from '@/app/lib/useTextareaAutoResize';
+import { useKeyboardFocus } from '@/app/lib/useKeyboardFocus'
 
 export default function MainChat() {
     const [chatSessionId, setChatSessionId] = useState<string | null>(null)
     const [newPrompt, setNewPrompt] = useState({content: ''})
-    const [session, setSession] = useState<Session | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const searchParams = useSearchParams()
-    const refreshParam = searchParams.get('refresh')
     const router = useRouter()
     const {state} = useSidebar()
 
-    useEffect(() => {
-        if (refreshParam) {
-            const refreshProfile = async () => {
-                await supabase.auth.refreshSession()
-            }
-            refreshProfile()
-        }
-    }, [])    
+    const {session} = useAuth()
+    useTextareaAutoResize(textareaRef, newPrompt.content)
+    useKeyboardFocus(textareaRef)
 
-    useEffect(() => {
-        supabase.auth.getSession().then(({data: {session}}) => {
-            setSession(session)
-        })
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session)
-            console.log("Auth event:", _event)
-        })
-
-        return () => subscription.unsubscribe()
-    }, [])
-    
-    useEffect(() => {
-        const adjustHeight = () => {
-            const textarea = textareaRef.current
-            if (textarea) {
-                textarea.style.height = 'auto'
-                const scrollHeight = textarea.scrollHeight
-                const maxHeight = 200
-                const newHeight = Math.min(maxHeight, scrollHeight)
-                textarea.style.height = `${newHeight}px`
-                textarea.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden'
-            }
-        }
-        adjustHeight()
-
-        const timeoutId = setTimeout(adjustHeight, 10) // Delay to ensure the height is adjusted after rendering
-
-        return () => clearTimeout(timeoutId)
-    }, [newPrompt.content])
-    
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         console.log("Submitting prompt:", newPrompt.content)
@@ -83,11 +45,7 @@ export default function MainChat() {
         }
 
         if (!newPrompt.content.trim() || !session?.user.id || !currentChatSessionId) {
-            console.log("Prompt is empty or session/user ID is not available. Cannot submit prompt.")
-            console.log("Prompt:", newPrompt.content)
-            console.log("Session:", session)
-            console.log("User ID:", session?.user.id)
-            console.log("Chat Session ID:", currentChatSessionId)
+            console.log("Cannot submit: missing prompt, user ID, or session ID")
             return
         }
 
@@ -126,10 +84,21 @@ export default function MainChat() {
         }        
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        // Submit on Enter without Shift key
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            const form = e.currentTarget.form;
+            if (form && !isLoading && newPrompt.content.trim()) {
+                form.requestSubmit();
+            }
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-zinc-900"
             style={{
-                marginLeft: state === "expanded" ? "16rem" : "4rem", // 64px or 16px for sidebar
+                marginLeft: state === "expanded" ? "16rem" : "4rem", 
             }}
         >
             <div className="flex flex-col items-center justify-center h-full w-full">
@@ -163,16 +132,7 @@ export default function MainChat() {
                                         boxSizing: 'border-box',
                                         border: "1px solid transparent",
                                     }}
-                                    onKeyDown={(e) => {
-                                        // Submit on Enter without Shift key
-                                        if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault();
-                                            const form = e.currentTarget.form;
-                                            if (form && !isLoading && newPrompt.content.trim()) {
-                                                form.requestSubmit();
-                                            }
-                                        }
-                                    }}
+                                    onKeyDown={handleKeyDown}
                                 />
                             </div>
                             <div className="absolute bottom-4 right-4">
