@@ -52,6 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }, [])
 
     useEffect(() => {
+        if (noSideBarPage) return
 
         if (!sessionId?.user?.id) {
             console.log("No session ID provided")

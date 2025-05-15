@@ -113,9 +113,15 @@
 }
 
 @layer base {
+  html,
+  body {
+    @apply h-full w-full overflow-x-hidden overflow-y-auto;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-[#21211f] text-foreground;
   }

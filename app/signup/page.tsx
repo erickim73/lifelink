@@ -50,16 +50,15 @@ const SignUp = () => {
     return (
         <div className="fixed inset-0 bg-zinc-900 flex items-center justify-center">
             <div className="w-full max-w-md px-6">
-                <div className="flex flex-col items-center mb-10">
+                <div className="flex flex-col items-center mb-5">
                     <Image
                         alt="LifeLink Logo"
                         src="/lifelink_logo.png"
                         width={50} 
                         height={50}
-                        className="mb-4"
+                        className="mb-2"
                     />
-                    <h1 className="text-3xl font-semibold text-white mb-2">Create your account</h1>
-                    <p className="text-gray-400 text-center">Join LifeLink to get started</p>
+                    <h1 className="text-3xl font-semibold text-white mb-1">Create your account</h1>
                 </div>
                 <div className="bg-zinc-800 rounded-2xl p-6 shadow-lg border border-zinc-700">
                     {error && (
@@ -118,7 +117,7 @@ const SignUp = () => {
                         <button 
                             type="submit"
                             disabled={loading || !email || !password || !confirmPassword}
-                            className="w-full bg-[#1A4B84] text-white font-medium py-3 px-4 rounded-xl hover:bg-[#1A4B84]/90 transition disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                            className="w-full bg-[#1A4B84] text-white font-medium py-3 px-4 rounded-xl hover:bg-[#1A4B84]/90 transition disabled:opacity-50 disabled:cursor-not-allowed mt-1"
                         >
                             {loading ? (
                                 <div className="flex items-center justify-center">
@@ -132,7 +131,7 @@ const SignUp = () => {
                     </form>
                 </div>
 
-                <div className="mt-6 text-center text-gray-400">
+                <div className="mt-3 text-center text-gray-400">
                     Already have an account?{" "}
                     <Link href="/login" className="text-blue-400 hover:underline">
                         Log in
