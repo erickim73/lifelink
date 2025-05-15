@@ -65,7 +65,7 @@ const Login = () => {
         } 
 
         console.log("Successfully signed in with user ID:", signedInSesssion.user.id)
-        router.push('/')
+        router.push('/chat')
     }
 
     return (

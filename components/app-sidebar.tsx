@@ -37,6 +37,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const noSideBarPage = noSideBarRoutes.includes(pathname || "")
 
     useEffect(() => {
+
+
         supabase.auth.getSession().then(({data: {session}}) => {
             setSessionId(session)
         })
@@ -50,6 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }, [])
 
     useEffect(() => {
+
         if (!sessionId?.user?.id) {
             console.log("No session ID provided")
             return
@@ -88,6 +91,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }, [sessionId])
 
     useEffect(() => {
+
         const channel = supabase.channel('realtime_chat').on('postgres_changes',
             {
                 event: 'INSERT',
@@ -347,6 +351,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
             <div className={`${isCollapsed ? "mt-auto" : ""}`}>
                 <SidebarSeparator className="mx-0 w-full" />
+
                 <SidebarFooter className="p-3">
                     {userData && <NavUser user={userData} />}
                 </SidebarFooter>

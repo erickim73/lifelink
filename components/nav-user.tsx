@@ -55,7 +55,7 @@ export function NavUser({user}: {user: {name: string, email: string, initials: s
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <Link href = '/profile' className="flex w-full items-center gap-2 ">
+                <Link href = '/settings' className="flex w-full items-center gap-2 ">
                   <User className="size-5" />
                   <span>Profile</span>
                 </Link>
