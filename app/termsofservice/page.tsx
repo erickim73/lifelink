@@ -184,8 +184,7 @@ const TermsOfService = () => {
                             If you have any questions about these Terms of Service, please contact us at:
                         </p>
                         <div className="text-gray-300">
-                            <p>Email: legal@lifelink.com</p>
-                            <p>Address: 123 Health Street, Medical District, CA 90210</p>
+                            <p>Email: ek71@rice.edu</p>
                         </div>
                     </section>
                 </div>                        

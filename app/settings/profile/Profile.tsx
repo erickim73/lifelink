@@ -40,10 +40,25 @@ const Profile = () => {
                 if (error) {
                     console.error("Error fetching user profile: ", error)
                 } else if (data) {
+                    console.log("Gender from database:", data.gender)
+                    
+                    let normalizedGender = '';
+                    if (data.gender) {
+                        const genderLower = data.gender.toLowerCase()
+                        if (genderLower === 'male') {
+                            normalizedGender = 'Male'
+                        } else if (genderLower === 'female') {
+                            normalizedGender = "Female" 
+                        } else if (genderLower === 'non-binary') {
+                            normalizedGender = "Non-binary" 
+                        } else if (genderLower === 'prefer_not_to_say') {
+                            normalizedGender = "prefer_not_to_say" 
+                        }
+                    }
                     const mappedUserData: UserFormData = {
                         firstName: data.first_name,
                         lastName: data.last_name,
-                        gender: data.gender,
+                        gender: normalizedGender,
                         dob: data.dob,
                         medicalConditions: data.medical_conditions,
                         medications: data.medications,

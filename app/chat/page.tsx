@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase-client';
 import { Session } from '@supabase/supabase-js'
 import { NewChatMessage } from '../lib/types';
 import { createNewSession } from '../utils/createNewSession';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSidebar } from '@/components/ui/sidebar';
 import Image from 'next/image';
 
@@ -15,9 +15,19 @@ export default function MainChat() {
     const [session, setSession] = useState<Session | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const searchParams = useSearchParams()
+    const refreshParam = searchParams.get('refresh')
     const router = useRouter()
     const {state} = useSidebar()
-    
+
+    useEffect(() => {
+        if (refreshParam) {
+            const refreshProfile = async () => {
+                await supabase.auth.refreshSession()
+            }
+            refreshProfile()
+        }
+    }, [])    
 
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
@@ -131,7 +141,7 @@ export default function MainChat() {
                         width={40} 
                         height={40}
                     />
-                        <h1 className="text-3xl sm:text-4xl font-semibold">What can I help you with?</h1>
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold">What can I help you with?</h1>
                     </div>
             
                     <form onSubmit={handleSubmit} className="w-full">

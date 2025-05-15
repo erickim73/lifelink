@@ -19,6 +19,32 @@ const Onboarding = () => {
 
     const watchedFields = watch()
 
+    const validateDOB = (value: string) => {
+        const date = new Date(value)
+        if (isNaN(date.getTime())) {
+            return "Please enter a valid date"
+        }
+
+        if (date > new Date()) {
+            return "Date of birth must be in the past"
+        }
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        
+        const maxAge = new Date();
+        maxAge.setFullYear(maxAge.getFullYear() - 120);
+        
+        if (date > oneYearAgo) {
+            return "You must be at least 1 year old";
+        }
+        
+        if (date < maxAge) {
+            return "Please enter a realistic date of birth";
+        }
+        
+        return true;
+    }
+
     useEffect(() => {
             supabase.auth.getSession().then(({data: {session}}) => {
                 setSession(session)
@@ -57,7 +83,7 @@ const Onboarding = () => {
         try {
             await supabase.from("profiles").insert(transformedUserData)
             console.log("Inserted User Data: ", transformedUserData)
-            router.push(`/chat?refresh=${Date.now()}`);
+            router.push('/chat');
         } catch (error) {
             console.error("Error inserting user data: ", error)
         } finally {
@@ -155,7 +181,10 @@ const Onboarding = () => {
                                             <label className="block text-sm md:text-base text-gray-300">Date of Birth</label>
                                             <input
                                                 type="date"
-                                                {...register('dob', { required: "Date of Birth is required" })}
+                                                {...register('dob', { 
+                                                    required: "Date of Birth is required",
+                                                    validate: validateDOB 
+                                                })}
                                                 className="w-full bg-zinc-700 rounded-xl outline-none text-white placeholder-gray-400 py-2 sm:py-3 md:py-4 px-3 sm:px-4 md:px-5 focus:ring-2 focus:ring-blue-500/50 text-base md:text-lg"
                                             />
                                             {errors.dob && <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.dob.message}</p>}

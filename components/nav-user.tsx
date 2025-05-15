@@ -6,13 +6,16 @@ import {DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, 
 import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar} from "@/components/ui/sidebar"
 import { supabase } from "@/app/lib/supabase-client"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export function NavUser({user}: {user: {name: string, email: string, initials: string}}) {
   const { isMobile } = useSidebar()
+  const router = useRouter()
 
   const logout = async () => {
         await supabase.auth.signOut();
         console.log("Logged out")
+        router.push('/')
     }
   
 

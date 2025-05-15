@@ -33,12 +33,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const {open} = useSidebar()
     const isCollapsed = !open
 
-    const noSideBarRoutes = ['/onboarding', '/signup', '/login']
+    const noSideBarRoutes = ['/onboarding', '/signup', '/login', '/reset', '/']
     const noSideBarPage = noSideBarRoutes.includes(pathname || "")
 
     useEffect(() => {
-
-
         supabase.auth.getSession().then(({data: {session}}) => {
             setSessionId(session)
         })
@@ -59,24 +57,32 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             return
         }
 
-        try {
-            supabase.from('chat_sessions').select('*').eq('user_id', sessionId?.user.id).order('updated_at', {ascending: false}).then(({data, error}) => {
-                if (error) {
-                    console.error("Error fetching chat session: ", error)
+        const fetchUserData = async () => {
+            try {
+                const { data: chatData, error: chatError } = await supabase
+                    .from('chat_sessions')
+                    .select('*')
+                    .eq('user_id', sessionId.user.id)
+                    .order('updated_at', {ascending: false})
+                
+                if (chatError) {
+                    console.error("Error fetching chat session: ", chatError)
+                } else {
+                    setChatSessionIds(chatData || []);
                 }
-                setChatSessionIds(data || []);
-            })
-
-            supabase.from('profiles').select('first_name, last_name').eq('user_id', sessionId?.user.id).then(({data, error}) => {
-                console.log(data, error)
-                if (error) {
-                    console.error("Error fetching user profile: ", error)
+    
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('first_name, last_name')
+                    .eq('user_id', sessionId.user.id)
+                
+                if (profileError) {
+                    console.error("Error fetching user profile: ", profileError)
                     return
                 }
-
                                   
-                if (data && data.length > 0) {
-                    const user = data[0]
+                if (profileData && profileData.length > 0) {
+                    const user = profileData[0]
                     setUserData({
                         name: `${user.first_name} ${user.last_name}`,
                         email: sessionId.user.email ?? "",
@@ -85,11 +91,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 } else {
                     console.error("No user profile found")
                 }
-            })
-        } catch (error) {
-            console.error("Error fetching chat session or user profile: ", error)
+            } catch (error) {
+                console.error("Error fetching chat session or user profile: ", error)
+            }
         }
-    }, [sessionId])
+    
+        fetchUserData()
+    }, [sessionId, noSideBarPage])
 
     useEffect(() => {
 
@@ -236,7 +244,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             <SidebarMenu>
                                 {groupedSessions.today?.length > 0 && (
                                     <>
-                                        <div className="px-3 py-1 text-xs font-medium text-muted-foreground">Today</div>
+                                        <div className="px-2 py-1 text-small font-medium text-muted-foreground">Today</div>
                                         {groupedSessions.today.map((session) => (
                                             <SidebarMenuItem key={session.session_id}>
                                                 <SidebarMenuButton
@@ -258,7 +266,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 )}
                                 {groupedSessions.yesterday?.length > 0 && (
                                     <>
-                                        <div className="px-3 py-1 mt-2 text-xs font-medium text-muted-foreground">Yesterday</div>
+                                        <div className="px-2 py-1 mt-2 text-small font-medium text-muted-foreground">Yesterday</div>
                                         {groupedSessions.yesterday.map((session) => (
                                             <SidebarMenuItem key={session.session_id}>
                                                 <SidebarMenuButton
@@ -280,7 +288,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 )}
                                 {groupedSessions.sevenDays?.length > 0 && (
                                     <>
-                                        <div className="px-3 py-1 mt-2 text-xs font-bold text-muted-foreground">Previous 7 Days</div>
+                                        <div className="px-2 py-1 mt-2 text-small font-bold text-muted-foreground">Previous 7 Days</div>
                                         {groupedSessions.sevenDays.map((session) => (
                                             <SidebarMenuItem key={session.session_id}>
                                                 <SidebarMenuButton
@@ -302,7 +310,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 )}
                                 {groupedSessions.thirtyDays?.length > 0 && (
                                     <>
-                                        <div className="px-3 py-1 mt-2 text-xs font-medium text-muted-foreground">Previous 30 Days</div>
+                                        <div className="px-2 py-1 mt-2 text-small font-medium text-muted-foreground">Previous 30 Days</div>
                                         {groupedSessions.thirtyDays.map((session) => (
                                             <SidebarMenuItem key={session.session_id}>
                                                 <SidebarMenuButton
