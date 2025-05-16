@@ -22,6 +22,7 @@ const ChatWindow = ({prompts, isLoading}: Props) => {
     const formattedText = text
         .replace(/^\s+|\s+$/g, "") // trim leading / trailing whitespace
         .replace(/\r\n/g, "\n") // normalise line endings
+        .replace(/(\d+\.)(\S)/g, "$1 $2") // ensure space after list number
         .replace(/(\d+\.)\s*\n+/g, "$1 ") // keep list number on same line
         .replace(/\n{3,}/g, "\n\n") // collapse 3+ newlines → exactly 2
 
@@ -37,10 +38,8 @@ const ChatWindow = ({prompts, isLoading}: Props) => {
                     const [, number, beforeColon, afterColon] = listMatch
                     return (
                         <div key={index} className="mb-4">
-                            <span className="font-bold">
-                                {number}
-                                {beforeColon}
-                            </span>
+                            {/* Fixed: Corrected bold formatting by ensuring proper element structure */}
+                            <span className="font-bold">{number}{beforeColon}</span>
                             <span>{afterColon}</span>
                         </div>
                     )
@@ -53,8 +52,9 @@ const ChatWindow = ({prompts, isLoading}: Props) => {
 
                     return (
                         <div key={index} className="mb-4">
-                            <span className="font-bold">{number}</span>
-                            <span className="ml-1">{content}</span>
+                            {/* Fixed: Added proper spacing after the bold number */}
+                            <span className="font-bold">{number} </span>
+                            <span>{content}</span>
                         </div>
                     )
                 }

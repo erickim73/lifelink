@@ -222,13 +222,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             <SidebarTrigger className="h-5 w-5 text-white/80 hover:text-white" />
                         </div>
                         {!isCollapsed && (
-                            <span>
-                                <Link href="/chat">
+                            <span className="flex items-center justify-start py-2 h-12">
+                                <Link href="/chat" className="flex items-center">            
                                     <Image
                                         src="/lifelink.svg"
                                         alt="LifeLink Logo"
-                                        width={75}
-                                        height={75}
+                                        width={30} 
+                                        height={8} 
+                                        className="h-6 w-auto object-contain" 
                                         priority
                                     />
                                 </Link>
@@ -236,7 +237,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         )}
                     </div>
                 </div>
-                <div className="mt-1">
+                <div className="mt-0">
                     <Link 
                         href="/chat" 
                         className={`flex items-center gap-2 px-1.5 py-2.5 rounded-lg ${COLORS.newChat.hover} transition-colors`}
@@ -246,7 +247,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             <Plus className="h-4 w-4 text-white" />
                         </div>
                         {!isCollapsed && (
-                            <span className="text-balance font-medium text-white">New chat</span>
+                            <span className="text-balance font-medium text-white px-1">New chat</span>
                         )}
                     </Link>
                 </div>

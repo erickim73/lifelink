@@ -91,7 +91,7 @@ const SignUp = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className={`w-full bg-zinc-700 rounded-xl outline-none text-white placeholder-gray-400 py-3 px-4 focus:ring-2 focus:ring-blue-500/50 ${
-                                    formSubmitted && password.length < 8 ? "border border-red-500" : ""
+                                    formSubmitted && !isValidEmail(email) ? "border border-red-500" : ""
                                 }`}
                                 required
                                 aria-required="true"
@@ -117,7 +117,7 @@ const SignUp = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     className={`w-full bg-zinc-700 rounded-xl outline-none text-white placeholder-gray-400 py-3 px-4 pr-10 focus:ring-2 focus:ring-blue-500/50 ${
-                                        formSubmitted ? "border border-red-500" : ""
+                                        formSubmitted && password.length < 8 ? "border border-red-500" : ""
                                     }`}
                                     required
                                     aria-required="true"
