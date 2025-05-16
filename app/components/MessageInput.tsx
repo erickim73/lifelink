@@ -24,13 +24,13 @@ const MessageInput: React.FC<MessageInputProps> = ({value, isLoading, onChange, 
         const timeoutId = setTimeout(adjustHeight, 0) // Delay to ensure the height is adjusted after rendering
 
         return () => clearTimeout(timeoutId)
-    }, [value])
+    }, [value, textareaRef])
 
     return (
         <div className="flex flex-col items-center justify-center h-full w-full bg-zinc-900">
             <div className="w-full max-w-[70%] px-4">
                 <form onSubmit={onSubmit} className="w-full">
-                    <div className="relative w-full flex flex-col bg-zinc-800 rounded-2xl px-5 py-3 mb-0 shadow-lg border border-zinc-700">
+                    <div className="relative w-full flex flex-col bg-zinc-800 rounded-2xl px-5 py-3 mb-1.5 shadow-lg border border-zinc-700">
                         <div className="w-full" style={{ minWidth: "100%" }}>
                             <textarea
                                 ref={textareaRef}

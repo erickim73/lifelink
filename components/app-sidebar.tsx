@@ -228,7 +228,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         )}
                     </div>
                 </div>
-                <div className="mb-2 mt-1">
+                <div className="mt-1">
                     <Link 
                         href="/chat" 
                         className={`flex items-center gap-2 px-1.5 py-2.5 rounded-lg ${COLORS.newChat.hover} transition-colors`}

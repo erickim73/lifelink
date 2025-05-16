@@ -1,21 +1,22 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css"
+import {Poppins} from 'next/font/google'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-})
+import '@fontsource/inter/300.css'; // Light
+import '@fontsource/inter/400.css'; // Regular
+import '@fontsource/inter/500.css'; // Medium
+import '@fontsource/inter/700.css'; // Bold
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-})
+const poppins = Poppins({
+  weight: ['300', '400', '500', '700'],
+  subsets: ['latin'],
+  variable: '--font-poppins',
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -29,7 +30,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${poppins.variable} antialiased`}>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 					<SidebarProvider>
 						<div className="flex h-screen w-full overflow-hidden">
