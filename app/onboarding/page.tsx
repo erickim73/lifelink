@@ -117,6 +117,24 @@ const Onboarding = () => {
         }
     }
 
+    const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        // Submit on Enter without Shift key
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+
+            if (formStep === 0) {
+                const isValid = await trigger(['firstName', 'lastName', 'dob', 'gender']);
+                if (isValid) nextStep();
+            } else if (formStep === 1) {
+                nextStep()
+            } else if (formStep === 2) {
+                const isValid = await trigger (['consentToUseData'])
+                if (isValid) handleSubmit(onSubmit)
+            }
+            
+        }
+    };
+
     return (
         <div className="flex flex-col h-screen w-full items-center justify-center py-3 px-4 overflow-y-auto md:overflow-y-hidden">
             <div className="w-full max-w-3xl mx-auto">
@@ -160,6 +178,7 @@ const Onboarding = () => {
                                                 placeholder="John"
                                                 {...register('firstName', { required: "First name is required" })}
                                                 className="w-full bg-zinc-700 rounded-xl outline-none text-white placeholder-gray-400 py-2 sm:py-3 md:py-4 px-3 sm:px-4 md:px-5 focus:ring-2 focus:ring-blue-500/50 text-base md:text-lg"
+                                                onKeyDown={handleKeyDown}
                                             />
                                             {errors.firstName && <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.firstName.message}</p>}
                                         </div>
@@ -171,6 +190,7 @@ const Onboarding = () => {
                                                 placeholder="Doe"
                                                 {...register('lastName', { required: "Last name is required" })}
                                                 className="w-full bg-zinc-700 rounded-xl outline-none text-white placeholder-gray-400 py-2 sm:py-3 md:py-4 px-3 sm:px-4 md:px-5 focus:ring-2 focus:ring-blue-500/50 text-base md:text-lg"
+                                                onKeyDown={handleKeyDown}
                                             />
                                             {errors.lastName && <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.lastName.message}</p>}
                                         </div>
@@ -186,6 +206,7 @@ const Onboarding = () => {
                                                     validate: validateDOB 
                                                 })}
                                                 className="w-full bg-zinc-700 rounded-xl outline-none text-white placeholder-gray-400 py-2 sm:py-3 md:py-4 px-3 sm:px-4 md:px-5 focus:ring-2 focus:ring-blue-500/50 text-base md:text-lg"
+                                                onKeyDown={handleKeyDown}
                                             />
                                             {errors.dob && <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.dob.message}</p>}
                                         </div>

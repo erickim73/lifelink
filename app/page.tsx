@@ -6,6 +6,38 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Heart, Shield, Activity, Brain, Leaf, Menu, X, ChevronRight } from "lucide-react"
 
+const footerLinks = [
+{
+	title: "Product",
+	links: [
+		{ label: "Features", href: "#features" },
+		{ label: "Integrations", href: "#integrations" },
+		{ label: "FAQ", href: "#faq" },
+		{ label: "Roadmap", href: "#roadmap" },
+	],
+},
+{
+	title: "Company",
+	links: [
+		{ label: "About us", href: "#about" },
+		{ label: "Team", href: "#team" },
+		{ label: "Careers", href: "#careers" },
+		{ label: "Blog", href: "#blog" },
+		{ label: "Press", href: "#press" },
+	],
+},
+{
+	title: "Resources",
+	links: [
+		{ label: "Documentation", href: "#docs" },
+		{ label: "Help center", href: "#help" },
+		{ label: "Community", href: "#community" },
+		{ label: "Partners", href: "#partners" },
+		{ label: "Status", href: "#status" },
+	],
+},
+]
+
 export default function LandingPage() {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 	const [scrolled, setScrolled] = useState(false)
@@ -43,7 +75,15 @@ export default function LandingPage() {
 						<div className="relative w-10 h-10">
 							<Image src="/lifelink_logo.png" alt="LifeLink Logo" fill className="object-contain" priority />
 						</div>
-						<span className="text-xl font-medium tracking-tight">LifeLink</span>
+						<span className="text-xl font-medium tracking-tight">
+							<Image
+								src="/lifelink.svg"
+								alt="LifeLink Logo"
+								width={105}
+								height={75}
+								priority
+							/>
+						</span>
 					</motion.div>
 
 					{/* Desktop Navigation */}
@@ -96,7 +136,7 @@ export default function LandingPage() {
 						<div className="flex justify-between items-center mb-10">
 							<div className="flex items-center gap-3">
 								<div className="relative w-10 h-10">
-								<Image src="/lifelink_logo.png" alt="LifeLink Logo" fill className="object-contain" />
+									<Image src="/lifelink_logo.png" alt="LifeLink Logo" fill className="object-contain" />
 								</div>
 								<span className="text-xl font-medium tracking-tight">LifeLink</span>
 							</div>
@@ -177,11 +217,12 @@ export default function LandingPage() {
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.6, delay: 0.2 }}
-							className="text-lg text-zinc-400 max-w-2xl mx-auto mb-10"
+							className="text-lg text-zinc-400 max-w-2xl mx-auto mb-10 font-sans"
 						>
 							LifeLink combines AI-powered health analysis with personalized guidance to help you achieve your wellness
 							goals and live a more balanced, healthier life.
 						</motion.p>
+						
 
 						<motion.div
 							initial={{ opacity: 0, y: 20 }}
@@ -221,7 +262,7 @@ export default function LandingPage() {
 							</div>
 							<div className="relative">
 								<Image
-									src="/dashboard-preview.png"
+									src="/dashboard.png"
 									alt="LifeLink Dashboard"
 									width={1200}
 									height={675}
@@ -431,7 +472,7 @@ export default function LandingPage() {
 							"LifeLink has completely changed how I approach my health. The personalized recommendations are spot on!",
 							name: "Sarah J.",
 							role: "Fitness Enthusiast",
-							image: "/testimonial-1.png",
+							image: "/testimonial---1.png",
 							rating: 5,
 						},
 						{
@@ -439,7 +480,7 @@ export default function LandingPage() {
 							"As someone with chronic health issues, having all my data in one place with smart insights has been invaluable.",
 							name: "Michael T.",
 							role: "Health Advocate",
-							image: "/testimonial-2.png",
+							image: "/testimonial---2.png",
 							rating: 5,
 						},
 						{
@@ -447,7 +488,7 @@ export default function LandingPage() {
 							"The interface is beautiful and intuitive. I've finally found a health app that I actually enjoy using daily.",
 							name: "Priya K.",
 							role: "Tech Professional",
-							image: "/testimonial-3.png",
+							image: "/testimonial---3.png",
 							rating: 5,
 						},
 						].map((testimonial, index) => (
@@ -553,8 +594,8 @@ export default function LandingPage() {
 									<Image
 										src="/app-preview.png"
 										alt="LifeLink App Preview"
-										width={500}
-										height={600}
+										width={800}
+										height={450}
 										className="w-full h-auto"
 									/>
 								</div>
@@ -580,62 +621,32 @@ export default function LandingPage() {
 								LifeLink is your personal health companion, providing AI-powered insights and guidance for a balanced,
 								healthier life.
 							</p>
-							<div className="flex gap-4">
-								{["twitter", "facebook", "instagram", "linkedin"].map((social, i) => (
-								<a
-									key={i}
-									href="#"
-									className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
-									aria-label={`Follow us on ${social}`}
-								>
-									<span className="sr-only">{social}</span>
-									<div className="w-5 h-5"></div>
-								</a>
-								))}
-							</div>
+							
 						</div>
 
-						{[
-						{
-							title: "Product",
-							links: ["Features", "Integrations", "FAQ", "Roadmap"],
-						},
-						{
-							title: "Company",
-							links: ["About us", "Team", "Careers", "Blog", "Press"],
-						},
-						{
-							title: "Resources",
-							links: ["Documentation", "Help center", "Community", "Partners", "Status"],
-						},
-						].map((column, i) => (
+						{footerLinks.map((column, i) => (
 							<div key={i}>
 								<h3 className="font-medium text-lg mb-4">{column.title}</h3>
 								<ul className="space-y-3">
 									{column.links.map((link, j) => (
 										<li key={j}>
-											<a href="#" className="text-zinc-400 hover:text-white transition-colors">
-												{link}
+											<a href={link.href} className="text-zinc-400 hover:text-white transition-colors">
+												{link.label}
 											</a>
 										</li>
 									))}
 								</ul>
 							</div>
 						))}
+
 					</div>
 
 					<div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center">
 						<p className="text-zinc-500 text-sm">© {new Date().getFullYear()} LifeLink. All rights reserved.</p>
-						<div className="flex gap-6 mt-4 md:mt-0">
-							<a href="#" className="text-zinc-500 hover:text-white text-sm transition-colors">
-								Privacy Policy
-							</a>
-							<a href="#" className="text-zinc-500 hover:text-white text-sm transition-colors">
+						<div className="flex gap-6 mt-4 md:mt-0">							
+							<a href="/termsofservice" className="text-zinc-500 hover:text-white text-sm transition-colors">
 								Terms of Service
-							</a>
-							<a href="#" className="text-zinc-500 hover:text-white text-sm transition-colors">
-								Cookies
-							</a>
+							</a>							
 						</div>
 					</div>
 				</div>

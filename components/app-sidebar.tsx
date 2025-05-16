@@ -12,6 +12,8 @@ import { usePathname } from "next/navigation";
 import { UserProfile } from '../app/lib/types';
 import { MessageSquare, Plus } from "lucide-react"
 import { Badge } from "./ui/badge";
+import Image from 'next/image';
+
 
 // Consolidated color variables for consistent theming
 const COLORS = {
@@ -220,9 +222,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             <SidebarTrigger className="h-5 w-5 text-white/80 hover:text-white" />
                         </div>
                         {!isCollapsed && (
-                            <span className="text-lg font-semibold text-white tracking-tight">
+                            <span>
                                 <Link href="/chat">
-                                    LifeLink
+                                    <Image
+                                        src="/lifelink.svg"
+                                        alt="LifeLink Logo"
+                                        width={75}
+                                        height={75}
+                                        priority
+                                    />
                                 </Link>
                             </span>
                         )}
