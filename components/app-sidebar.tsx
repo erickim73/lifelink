@@ -40,7 +40,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const {open} = useSidebar()
     const isCollapsed = !open
 
-    const noSideBarRoutes = ['/onboarding', '/signup', '/login', '/reset', '/']
+    const noSideBarRoutes = ['/onboarding', '/signup', '/login', '/reset', '/', '/test']
     const noSideBarPage = noSideBarRoutes.includes(pathname || "")
     
 
@@ -199,11 +199,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     // Custom section header component for consistent styling
     const SectionHeader = ({ title, count }: { title: string; count?: number }) => (
-        <div className="px-2 py-1 mt-2 first:mt-0 text-xs font-medium text-white/70">
+        <div className="px-2 py-1 mt-2 text-xs font-medium first:mt-0 text-white/70">
             <div className="flex items-center">
                 <span>{title}</span>
                 {count !== undefined && (
-                    <Badge variant="outline" className="ml-auto text-xs py-0 h-5">
+                    <Badge variant="outline" className="h-5 py-0 ml-auto text-xs">
                         {count}
                     </Badge>
                 )}
@@ -221,17 +221,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-1">
                         <div className={`flex items-center justify-center h-8 w-8 rounded-md ${COLORS.hover} transition-colors`}>
-                            <SidebarTrigger className="h-5 w-5 text-white/80 hover:text-white" />
+                            <SidebarTrigger className="w-5 h-5 text-white/80 hover:text-white" />
                         </div>
                         {!isCollapsed && (
-                            <span className="flex items-center justify-start py-2 h-12">
+                            <span className="flex items-center justify-start h-12 py-2">
                                 <Link href="/chat" className="flex items-center">            
                                     <Image
                                         src="/lifelink.svg"
                                         alt="LifeLink Logo"
                                         width={30} 
                                         height={8} 
-                                        className="h-6 w-auto object-contain" 
+                                        className="object-contain w-auto h-6" 
                                         priority
                                     />
                                 </Link>
@@ -246,7 +246,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         title="New chat"
                     >
                         <div className={`flex items-center justify-center w-5 h-5 ${COLORS.newChat.bg} rounded-full`}>
-                            <Plus className="h-4 w-4 text-white" />
+                            <Plus className="w-4 h-4 text-white" />
                         </div>
                         {!isCollapsed && (
                             <span className="text-balance font-medium ${COLORS.newChat.text} px-1">New chat</span>
@@ -260,17 +260,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >               
                 {(chatSessionIds.length > 0 && !isCollapsed) && (
                     <SidebarGroup>
-                        <SidebarGroupLabel className="flex items-center gap-2 text-xs text-white/70 px-2 py-1">
+                        <SidebarGroupLabel className="flex items-center gap-2 px-2 py-1 text-xs text-white/70">
                             <span>Recent Chats</span>
                             {chatSessionIds.length > 0 && (
-                                <Badge variant="outline" className="ml-auto text-xs py-0 h-5">
+                                <Badge variant="outline" className="h-5 py-0 ml-auto text-xs">
                                     {chatSessionIds.length}
                                 </Badge>
                             )}
                         </SidebarGroupLabel>
 
                         {chatSessionIds.length === 0 ? (
-                            <div className="px-3 py-2 text-sm text-white/60 italic">No recent chats</div>
+                            <div className="px-3 py-2 text-sm italic text-white/60">No recent chats</div>
                         ) : (
                             <SidebarMenu>
                                 {groupedSessions.today?.length > 0 && (
@@ -288,7 +288,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                                         <div className="flex items-center justify-center h-5 w-5 rounded-full bg-white/10 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
                                                             <MessageSquare className="h-3.5 w-3.5" />
                                                         </div>
-                                                        <span className="flex-1 truncate text-sm">{formatDate(session.updated_at)}</span>
+                                                        <span className="flex-1 text-sm truncate">{formatDate(session.updated_at)}</span>
                                                     </Link>
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
@@ -310,7 +310,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                                         <div className="flex items-center justify-center h-5 w-5 rounded-full bg-white/10 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
                                                             <MessageSquare className="h-3.5 w-3.5" />
                                                         </div>
-                                                        <span className="flex-1 truncate text-sm">{formatDate(session.updated_at)}</span>
+                                                        <span className="flex-1 text-sm truncate">{formatDate(session.updated_at)}</span>
                                                     </Link>
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
@@ -332,7 +332,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                                         <div className="flex items-center justify-center h-5 w-5 rounded-full bg-white/10 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
                                                             <MessageSquare className="h-3.5 w-3.5" />
                                                         </div>
-                                                        <span className="flex-1 truncate text-sm">{formatDate(session.updated_at)}</span>
+                                                        <span className="flex-1 text-sm truncate">{formatDate(session.updated_at)}</span>
                                                     </Link>
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
@@ -354,7 +354,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                                         <div className="flex items-center justify-center h-5 w-5 rounded-full bg-white/10 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
                                                             <MessageSquare className="h-3.5 w-3.5" />
                                                         </div>
-                                                        <span className="flex-1 truncate text-sm">{formatDate(session.updated_at)}</span>
+                                                        <span className="flex-1 text-sm truncate">{formatDate(session.updated_at)}</span>
                                                     </Link>
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
@@ -376,7 +376,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                                         <div className="flex items-center justify-center h-5 w-5 rounded-full bg-white/10 mr-2 group-hover:bg-primary/10 group-data-[active=true]:bg-primary/20">
                                                             <MessageSquare className="h-3.5 w-3.5" />
                                                         </div>
-                                                        <span className="flex-1 truncate text-sm">{formatDate(session.updated_at)}</span>
+                                                        <span className="flex-1 text-sm truncate">{formatDate(session.updated_at)}</span>
                                                     </Link>
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
@@ -390,7 +390,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarContent>
 
             <div className={`${isCollapsed ? "mt-auto" : ""}`}>
-                <SidebarSeparator className="mx-0 w-full" />
+                <SidebarSeparator className="w-full mx-0" />
 
                 <SidebarFooter className="p-3">
                     {userData && <NavUser user={userData} />}
