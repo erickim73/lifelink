@@ -56,7 +56,7 @@ export interface ProfileDetailProps {
     handleSaveChanges: () => void
 }
 
-export interface SettingsSideBar {
+export interface SettingsSideBarProps {
     activeTab: string;
     setActiveTab: (tab: string) => void
 }

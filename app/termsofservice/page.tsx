@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import React from 'react'
+import Link from 'next/link';
 
 
 const TermsOfService = () => {
@@ -12,13 +13,15 @@ const TermsOfService = () => {
             <header className="sticky top-0 z-10 border-b border-zinc-700 py-6 bg-zinc-900">
                 <div className="container mx-auto px-6">
                     <div className="flex items-center justify-center">
-                        <Image
-                            alt="LifeLink Logo"
-                            src="/lifelink_logo.png"
-                            width={50}
-                            height={50}
-                            className="mr-4"
-                        />
+                        <Link href='/chat'>
+                            <Image
+                                alt="LifeLink Logo"
+                                src="/lifelink_logo.png"
+                                width={50}
+                                height={50}
+                                className="mr-4"
+                            />
+                        </Link>
                         <h1 className="text-3xl font-semibold">Terms of Service</h1>
                     </div>
                 </div>
@@ -188,7 +191,17 @@ const TermsOfService = () => {
                         </div>
                     </section>
                 </div>                        
-                    </div>
+            </div>
+            <div className="md:hidden fixed bottom-6 right-6">
+                <Link href="/chat">
+                    <button className="flex items-center text-white bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-full shadow-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        Chat
+                    </button>
+                </Link>
+            </div>
         </main>
     )
 }

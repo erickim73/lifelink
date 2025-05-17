@@ -85,44 +85,44 @@ const Login = () => {
     }
 
     return (
-        <div className="min-h-screen bg-zinc-900 flex items-center justify-center px-4 py-12">
-            <div className="w-full max-w-md px-6">
-                <div className="flex flex-col items-center mb-5">
-                    <Link href="/" aria-label="Go to homepage">
+        <div className="min-h-screen bg-zinc-900 flex items-center justify-center px-5 sm:px-4 py-10 sm:py-12">
+            <div className="w-full max-w-[360px] sm:max-w-md">
+                <div className="flex flex-col items-center mb-6 sm:mb-5">
+                    <Link href="/" aria-label="Go to homepage" className="mb-3 sm:mb-2">
                         <Image
                             alt="LifeLink Logo"
                             src="/lifelink_logo.png"
                             width={60} 
                             height={60}
-                            className="mb-2"
+                            className="w-14 h-14 sm:w-[60px] sm:h-[60px]"
                             priority
                         />
                     </Link>
-                    <h1 className="text-3xl font-semibold text-white mb-1">
+                    <h1 className="text-2xl sm:text-3xl font-semibold text-white mb-2 sm:mb-1 text-center">
                         {resetPassword ? 'Reset Password' : 'Welcome back'}
                     </h1>
-                    <p className="text-gray-400 text-center">
+                    <p className="text-base sm:text-base text-gray-400 text-center max-w-[300px] sm:max-w-none">
                         {resetPassword ? 'Enter your email to receive a reset link' : 'Log in to your account'}
                     </p>
                 </div>
 
-                <div className="bg-zinc-800 rounded-2xl p-6 shadow-lg border border-zinc-700">
+                <div className="bg-zinc-800 rounded-xl sm:rounded-2xl p-5 sm:p-6 shadow-lg border border-zinc-700">
                     {error && (
                         <div 
-                            className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 mb-6 text-red-200"
+                            className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 sm:p-3 mb-5 sm:mb-6 text-red-200 text-sm sm:text-base"
                             role="alert"
                         >
                             <div className="flex items-center">
-                                <AlertCircle className="h-5 w-5 mr-2" />
+                                <AlertCircle className="h-5 w-5 sm:h-5 sm:w-5 mr-2" />
                                 <span>{error}</span>
                             </div>
                         </div>
                     )}
 
                     {success && (
-                        <div className="bg-green-500/10 border border-green-500/50 rounded-lg p-3 mb-6 text-green-200">
+                        <div className="bg-green-500/10 border border-green-500/50 rounded-lg p-3 sm:p-3 mb-5 sm:mb-6 text-green-200 text-sm sm:text-base">
                             <div className="flex items-center">
-                                <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <svg className="h-5 w-5 sm:h-5 sm:w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span>Reset link sent! Check your email inbox.</span>
@@ -131,9 +131,9 @@ const Login = () => {
                     )}
 
                     {!resetPassword ? (
-                        <form onSubmit={handleSubmit} className="space-y-5">
-                            <div className="space-y-2">
-                                <label htmlFor="email" className="text-sm text-gray-300 block font-medium">
+                        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-5">
+                            <div className="space-y-2 sm:space-y-2">
+                                <label htmlFor="email" className="text-sm sm:text-sm text-gray-300 block font-medium">
                                     Email address
                                 </label>
                                 <input 
@@ -142,14 +142,14 @@ const Login = () => {
                                     placeholder="Enter your email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-zinc-700 rounded-xl outline-none text-white placeholder-gray-400 py-3 px-4 focus:ring-2 focus:ring-blue-500/50"
+                                    className="w-full bg-zinc-700 rounded-lg sm:rounded-xl outline-none text-white placeholder-gray-400 py-3 sm:py-3 px-4 sm:px-4 text-base sm:text-base focus:ring-2 focus:ring-blue-500/50"
                                     required
                                     autoComplete="email"
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <label htmlFor="password" className="text-sm text-gray-300 block font-medium">
+                            <div className="space-y-2 sm:space-y-2">
+                                <label htmlFor="password" className="text-sm sm:text-sm text-gray-300 block font-medium">
                                     Password
                                 </label>
                                 <div className="relative">
@@ -159,7 +159,7 @@ const Login = () => {
                                         placeholder="Enter your password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full bg-zinc-700 rounded-xl outline-none text-white placeholder-gray-400 py-3 px-4 pr-10 focus:ring-2 focus:ring-blue-500/50"
+                                        className="w-full bg-zinc-700 rounded-lg sm:rounded-xl outline-none text-white placeholder-gray-400 py-3 sm:py-3 px-4 sm:px-4 pr-10 text-base sm:text-base focus:ring-2 focus:ring-blue-500/50"
                                         required
                                         autoComplete="current-password"
                                     />
@@ -177,11 +177,11 @@ const Login = () => {
                             <button 
                                 type="submit"
                                 disabled={loading || !email || !password}
-                                className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-medium py-3 px-4 rounded-xl hover:bg-[#1A4B84]/90 transition disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                                className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-medium py-3 sm:py-3 px-4 rounded-lg sm:rounded-xl hover:bg-[#1A4B84]/90 transition disabled:opacity-50 disabled:cursor-not-allowed mt-3 sm:mt-2 text-base sm:text-base"
                             >
                                 {loading ? (
                                     <div className="flex items-center justify-center">
-                                        <div className="h-5 w-5 border-2 border-gray-600 border-t-white rounded-full animate-spin mr-2"></div>
+                                        <div className="h-5 w-5 sm:h-5 sm:w-5 border-2 border-gray-600 border-t-white rounded-full animate-spin mr-2"></div>
                                         <span>Logging in...</span>
                                     </div>
                                 ) : (
@@ -190,9 +190,9 @@ const Login = () => {
                             </button>
                         </form>
                     ) : (
-                        <div className="space-y-5">
-                            <div className="space-y-2">
-                                <label htmlFor="reset-email" className="text-sm text-gray-300 block font-medium">
+                        <div className="space-y-5 sm:space-y-5">
+                            <div className="space-y-2 sm:space-y-2">
+                                <label htmlFor="reset-email" className="text-sm sm:text-sm text-gray-300 block font-medium">
                                     Email address
                                 </label>
                                 <input
@@ -201,7 +201,7 @@ const Login = () => {
                                     placeholder="Enter your email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-zinc-700 rounded-xl outline-none text-white placeholder-gray-400 py-3 px-4 focus:ring-2 focus:ring-blue-500/50"
+                                    className="w-full bg-zinc-700 rounded-lg sm:rounded-xl outline-none text-white placeholder-gray-400 py-3 sm:py-3 px-4 sm:px-4 text-base sm:text-base focus:ring-2 focus:ring-blue-500/50"
                                     required
                                 />
                             </div>
@@ -209,11 +209,11 @@ const Login = () => {
                             <button 
                                 onClick={sendResetPassword}
                                 disabled={loading || !email}
-                                className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-medium py-3 px-4 rounded-xl hover:bg-[#1A4B84]/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-medium py-3 sm:py-3 px-4 rounded-lg sm:rounded-xl hover:bg-[#1A4B84]/90 transition disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-base"
                             >
                                 {loading ? (
                                     <div className="flex items-center justify-center">
-                                        <div className="h-5 w-5 border-2 border-gray-600 border-t-white rounded-full animate-spin mr-2"></div>
+                                        <div className="h-5 w-5 sm:h-5 sm:w-5 border-2 border-gray-600 border-t-white rounded-full animate-spin mr-2"></div>
                                         <span>Sending reset link...</span>
                                     </div>
                                 ) : (
@@ -224,8 +224,7 @@ const Login = () => {
                     )}
                 </div>
 
-                {/* Changed structure: Added these links directly below the form inside the card */}
-                <div className="mt-4 flex flex-row justify-between">
+                <div className="mt-5 sm:mt-4 flex flex-row justify-between">
                     {!resetPassword && (
                         <>
                             <p
@@ -233,12 +232,12 @@ const Login = () => {
                                     setResetPassword(!resetPassword)
                                     setError(null)
                                 }}
-                                className="text-blue-400 hover:underline cursor-pointer text-sm"
+                                className="text-blue-400 hover:underline cursor-pointer text-base sm:text-sm"
                             >
                                 Forgot password?
                             </p>
                             
-                            <Link href="/signup" className="text-blue-400 hover:underline text-sm">
+                            <Link href="/signup" className="text-blue-400 hover:underline text-base sm:text-sm">
                                 Create account
                             </Link>
                         </>
@@ -250,7 +249,7 @@ const Login = () => {
                                 setResetPassword(!resetPassword)
                                 setError(null)
                             }}
-                            className="text-blue-400 hover:underline cursor-pointer text-sm"
+                            className="text-blue-400 hover:underline cursor-pointer text-base sm:text-sm"
                         >
                             Back to login
                         </p>

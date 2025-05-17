@@ -1,92 +1,99 @@
 'use client'
 
-import React , {useEffect, useRef} from 'react'
+import React , {useEffect} from 'react'
 import { ChatMessage } from '../lib/types';
+import { useSidebar } from '@/components/ui/sidebar';
 
 type Props = {
     prompts: ChatMessage[];
     isLoading: boolean;
+    endRef: React.RefObject<HTMLDivElement | null>
 }
 
 
 
-const ChatWindow = ({prompts, isLoading}: Props) => {
-    const endRef = useRef<HTMLDivElement | null>(null)
+const ChatWindow = ({prompts, isLoading, endRef}: Props) => {
+    const { isMobile } = useSidebar()
 
 
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [prompts])
+    }, [prompts, endRef])
 
     function formatMessage(text: string): React.ReactNode {
-    const formattedText = text
-        .replace(/^\s+|\s+$/g, "") // trim leading / trailing whitespace
-        .replace(/\r\n/g, "\n") // normalise line endings
-        .replace(/(\d+\.)(\S)/g, "$1 $2") // ensure space after list number
-        .replace(/(\d+\.)\s*\n+/g, "$1 ") // keep list number on same line
-        .replace(/\n{3,}/g, "\n\n") // collapse 3+ newlines → exactly 2
+        const formattedText = text
+            .replace(/^\s+|\s+$/g, "") // trim leading / trailing whitespace
+            .replace(/\r\n/g, "\n") // normalise line endings
+            .replace(/(\d+\.)(\S)/g, "$1 $2") // ensure space after list number
+            .replace(/(\d+\.)\s*\n+/g, "$1 ") // keep list number on same line
+            .replace(/\n{3,}/g, "\n\n") // collapse 3+ newlines → exactly 2
 
-    if (formattedText.includes("\n")) {
-        const paragraphs = formattedText.split("\n\n")
+        if (formattedText.includes("\n")) {
+            const paragraphs = formattedText.split("\n\n")
 
-        return paragraphs.map((paragraph, index) => {
-            // Check if paragraph is a numbered list item
-            if (/^\d+\.\s/.test(paragraph)) {
-                // Format numbered list items with bold numbers and text up to colon
-                const listMatch = paragraph.match(/^(\d+\.\s)([^:]+)(:?.*)$/)
-                if (listMatch) {
-                    const [, number, beforeColon, afterColon] = listMatch
+            return paragraphs.map((paragraph, index) => {
+                // Check if paragraph is a numbered list item
+                if (/^\d+\.\s/.test(paragraph)) {
+                    // Format numbered list items with bold numbers and text up to colon
+                    const listMatch = paragraph.match(/^(\d+\.\s)([^:]+)(:?.*)$/)
+                    if (listMatch) {
+                        const [, number, beforeColon, afterColon] = listMatch
+                        return (
+                            <div key={index} className="mb-4">
+                                <span className="font-bold">{number}{beforeColon}</span>
+                                <span>{afterColon}</span>
+                            </div>
+                        )
+                    } else {
+                        // If no colon, just bold the number
+                        const match = paragraph.match(/^\d+\./)
+                        if (!match) return null
+                        const number = match[0]
+                        const content = paragraph.replace(/^\d+\.\s/, "")
+
+                        return (
+                            <div key={index} className="mb-4">
+                                <span className="font-bold">{number} </span>
+                                <span>{content}</span>
+                            </div>
+                        )
+                    }
+                }
+                // Check if paragraph starts with a dash (bullet point)
+                else if (paragraph.startsWith("- ")) {
                     return (
-                        <div key={index} className="mb-4">
-                            {/* Fixed: Corrected bold formatting by ensuring proper element structure */}
-                            <span className="font-bold">{number}{beforeColon}</span>
-                            <span>{afterColon}</span>
-                        </div>
-                    )
-                } else {
-                    // If no colon, just bold the number
-                    const match = paragraph.match(/^\d+\./)
-                    if (!match) return null
-                    const number = match[0]
-                    const content = paragraph.replace(/^\d+\.\s/, "")
-
-                    return (
-                        <div key={index} className="mb-4">
-                            {/* Fixed: Added proper spacing after the bold number */}
-                            <span className="font-bold">{number} </span>
-                            <span>{content}</span>
+                        <div key={index} className="mb-4 flex">
+                            <span className="mr-2 font-bold">•</span>
+                            <span>{paragraph.substring(2)}</span>
                         </div>
                     )
                 }
-            }
-            // Check if paragraph starts with a dash (bullet point)
-            else if (paragraph.startsWith("- ")) {
-                return (
-                    <div key={index} className="mb-4 flex">
-                        <span className="mr-2 font-bold">•</span>
-                        <span>{paragraph.substring(2)}</span>
-                    </div>
-                )
-            }
-            // Regular paragraph
-            else {
-                return (
-                    <p key={index} className="mb-4 leading-relaxed">
-                        {paragraph}
-                    </p>
-                )
-            }
-        })
+                // Regular paragraph
+                else {
+                    return (
+                        <p key={index} className="mb-4 leading-relaxed">
+                            {paragraph}
+                        </p>
+                    )
+                }
+            })
+        }
+
+        return formattedText
     }
 
-    return formattedText
-}
 
     return (
-        <div className='flex-1 overflow-y-auto py-6 px-4 h-full bg-zinc-900'>
-            <div className='max-w-[70%] mx-auto space-y-6'>
+        <div className="h-full w-full overflow-y-auto bg-zinc-900">
+            <div
+                className="w-full max-w-3xl mx-auto px-4"
+                style={{
+                paddingTop: isMobile ? "1.5rem" : "1.5rem",
+                paddingBottom: "0.5rem", // Minimal padding at bottom
+                }}
+            >
                 {prompts.length === 0 && !isLoading && (
-                    <div className="flex flex-col items-center justify-center h-64 text-zinc-400">                        
+                    <div className="flex flex-col items-center justify-center h-64 text-zinc-400">
                         <p className="text-lg">Start a conversation</p>
                         <p className="text-sm">Type a message to begin</p>
                     </div>
@@ -95,14 +102,16 @@ const ChatWindow = ({prompts, isLoading}: Props) => {
                 {prompts.map((prompt) => (
                     <div 
                         key={prompt.message_id}
-                        className={`flex ${prompt.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                        className={`flex ${prompt.sender === "user" ? "justify-end" : "justify-start"} mb-4`}
                     >
-                        <div className={
-                            prompt.sender === 'user'
-                                ? 'bg-zinc-800 text-white px-4 py-3 rounded-2xl inline-block max-w-md'
-                                : 'text-white py-2 px-1 font-sans'
-                        }>
-                            <div className={`leading-relaxed whitespace-pre-wrap ${prompt.sender !== 'user' ? 'text-base' : ''}`}>
+                        <div
+                            className={
+                                prompt.sender === "user"
+                                ? "bg-zinc-800 text-white px-4 py-3 rounded-2xl inline-block max-w-md"
+                                : "text-white py-2 px-1 font-sans"
+                            }
+                        >
+                            <div className={`leading-relaxed whitespace-pre-wrap ${prompt.sender !== "user" ? "text-base" : ""}`}>
                                 {formatMessage(prompt.content)}
                             </div>
                         </div>
@@ -118,7 +127,7 @@ const ChatWindow = ({prompts, isLoading}: Props) => {
                         </div>
                     </div>
                 )}
-            <div ref={endRef} />
+            <div ref={endRef} className="h-1" />
             
             </div>
         </div>

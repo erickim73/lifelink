@@ -26,11 +26,12 @@ const MessageInput: React.FC<MessageInputProps> = ({value, isLoading, onChange, 
         return () => clearTimeout(timeoutId)
     }, [value, textareaRef])
 
+
     return (
-        <div className="flex flex-col items-center justify-center h-full w-full bg-zinc-900">
-            <div className="w-full max-w-[70%] px-4">
+        <div className="w-full bg-zinc-900">
+            <div className="max-w-3xl mx-auto px-4 w-full py-2">
                 <form onSubmit={onSubmit} className="w-full">
-                    <div className="relative w-full flex flex-col bg-zinc-800 rounded-2xl px-5 py-3 mb-1.5 shadow-lg border border-zinc-700">
+                    <div className="relative w-full flex flex-col bg-zinc-800 rounded-2xl px-4 sm:px-5 py-3 shadow-lg border border-zinc-700">
                         <div className="w-full" style={{ minWidth: "100%" }}>
                             <textarea
                                 ref={textareaRef}
@@ -38,7 +39,7 @@ const MessageInput: React.FC<MessageInputProps> = ({value, isLoading, onChange, 
                                 value={value}
                                 onChange={onChange}
                                 rows={2}
-                                className="w-full bg-transparent rounded-2xl outline-none text-white placeholder-gray-400 py-1 resize-none "
+                                className="w-full bg-transparent rounded-2xl outline-none text-white placeholder-gray-400 py-1 resize-none"
                                 style={{
                                     minHeight: '40px',
                                     maxHeight: '200px',

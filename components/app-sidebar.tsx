@@ -17,7 +17,8 @@ import Image from 'next/image';
 
 // Consolidated color variables for consistent theming
 const COLORS = {
-    background: "bg-[#0F172A]",
+    background: "bg-white", 
+    text: "text-[#F9FAFB]", // Added text color
     border: "border-[#2A3441]",
     hover: "hover:bg-[#334155]",
     muted: "text-white/60",
@@ -41,6 +42,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     const noSideBarRoutes = ['/onboarding', '/signup', '/login', '/reset', '/']
     const noSideBarPage = noSideBarRoutes.includes(pathname || "")
+    
 
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
@@ -212,7 +214,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar 
             collapsible="icon" 
-            className={`border-r ${COLORS.border} ${COLORS.background} text-white ${SCROLLBAR_STYLES}`} 
+            className={`border-r ${COLORS.border} ${COLORS.background} ${COLORS.text} ${SCROLLBAR_STYLES}`} 
             {...props}
         >
             <SidebarHeader className="p-3.5 pt-3 flex-shrink-0">
@@ -247,7 +249,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             <Plus className="h-4 w-4 text-white" />
                         </div>
                         {!isCollapsed && (
-                            <span className="text-balance font-medium text-white px-1">New chat</span>
+                            <span className="text-balance font-medium ${COLORS.newChat.text} px-1">New chat</span>
                         )}
                     </Link>
                 </div>
