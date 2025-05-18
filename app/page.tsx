@@ -6,7 +6,6 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Heart, Shield, Activity, Brain, Leaf, Menu, X, ChevronRight } from "lucide-react"
 import { CardContainer, CardItem } from "@/components/ui/3d-card";
-import { Spotlight } from "@/components/ui/spotlight-new";
 
 
 const footerLinks = [
@@ -53,9 +52,26 @@ export default function LandingPage() {
 		return () => window.removeEventListener("scroll", handleScroll)
 	}, [])
 
+	useEffect(() => {
+		// Apply styles to html and body to take full width
+		document.documentElement.style.width = '100%';
+		document.documentElement.style.overflowX = 'hidden';
+		document.body.style.width = '100%';
+		document.body.style.overflowX = 'hidden';
+		
+		// Cleanup function
+		return () => {
+			document.documentElement.style.width = '';
+			document.documentElement.style.overflowX = '';
+			document.body.style.width = '';
+			document.body.style.overflowX = '';
+		};
+	}, []);
+
 	return (
 		<div className="min-h-screen bg-[#0F172A] text-white overflow-hidden">
-			<Spotlight />
+			
+
 			{/* Subtle background pattern */}
 			<div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] pointer-events-none"></div>
 

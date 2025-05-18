@@ -1,10 +1,12 @@
 import { Suspense } from 'react'
-import MainChat from './mainchat'
+import MainChat from './MainChat'
 
 export default function ChatPage() {
 	return (
-		<Suspense fallback={<div>Loading...</div>}>
-			<MainChat />
-		</Suspense>
+		<div className="h-screen overflow-auto">
+			<Suspense fallback={<div>Loading...</div>}>
+				<MainChat />
+			</Suspense>
+		</div>
 	)
 }

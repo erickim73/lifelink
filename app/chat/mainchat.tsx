@@ -12,7 +12,6 @@ import { useTextareaAutoResize } from "@/app/lib/useTextareaAutoResize"
 import { useKeyboardFocus } from "@/app/lib/useKeyboardFocus"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 
-
 export default function MainChat() {
 	const [chatSessionId, setChatSessionId] = useState<string | null>(null)
 	const [newPrompt, setNewPrompt] = useState({ content: "" })
@@ -95,7 +94,7 @@ export default function MainChat() {
 	}
 
 	return (
-		<div className="relative flex flex-col w-full h-full bg-zinc-900">
+		<div className="relative flex flex-col h-full w-full bg-zinc-900">
 			{/* Header with toggle for mobile */}
 			 <header className="flex items-center justify-between p-4 border-b border-zinc-800 md:hidden">
 				<SidebarTrigger className="flex-none" />
@@ -111,11 +110,11 @@ export default function MainChat() {
 				<div className="w-full max-w-3xl mx-auto my-auto">
 					<div className="flex items-center justify-center gap-4 mb-8 md:mb-10">
 						<Image alt="LifeLink Logo" src="/lifelink_logo.png" width={40} height={40} />
-            			<h1 className="text-2xl font-semibold sm:text-3xl md:text-4xl">What can I help you with?</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold">What can I help you with?</h1>
 					</div>
 
 					<form onSubmit={handleSubmit} className="w-full">
-						<div className="relative flex flex-col w-full px-4 py-4 border shadow-lg bg-zinc-800 rounded-2xl sm:px-6 sm:py-6 border-zinc-700">
+						<div className="relative w-full flex flex-col bg-zinc-800 rounded-2xl px-4 sm:px-6 py-4 sm:py-6 shadow-lg border border-zinc-700">
 							<div className="w-full">
 								<textarea
 									ref={textareaRef}
@@ -123,7 +122,7 @@ export default function MainChat() {
 									value={newPrompt.content}
 									onChange={(e) => setNewPrompt({ content: e.target.value })}
 									rows={2}
-									className="w-full py-1 text-white placeholder-gray-400 bg-transparent outline-none resize-none rounded-2xl"
+									className="w-full bg-transparent rounded-2xl outline-none text-white placeholder-gray-400 py-1 resize-none"
 									style={{
 										minHeight: "40px",
 										maxHeight: "200px",
@@ -143,7 +142,7 @@ export default function MainChat() {
 									className="bg-[#1A4B84] text-black font-medium p-2.5 sm:p-3 rounded-xl hover:bg-[#1A4B84]/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
 								>
 									{isLoading ? (
-										<div className="w-5 h-5 border-2 border-gray-600 rounded-full border-t-white animate-spin"></div>
+										<div className="h-5 w-5 border-2 border-gray-600 border-t-white rounded-full animate-spin"></div>
 									) : (
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
