@@ -1,4 +1,3 @@
-
 import ChatWrapper from "./ChatWrapper";
 
 type ChatHistoryProps = {
@@ -12,7 +11,7 @@ export default async function ChatHistory({ params }: ChatHistoryProps) {
     const sessionId = resolvedParams.sessionId;
 
     return (
-        <main className="h-screen w-full">
+        <main className="w-full h-screen">
             <ChatWrapper sessionId={sessionId}/>
         </main>
     )

@@ -90,7 +90,7 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
         }
         
         checkForEmailChangeToken()
-    }, [])
+    }, [email, newEmail])
 
     const resetEmailForm = () => {
         setNewEmail('')
@@ -208,7 +208,7 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
     }
 
     return (
-        <div className="h-full w-full p-6 overflow-y-auto">
+        <div className="w-full h-full p-6 overflow-y-auto">
             <Toaster />
             <Card className="w-full bg-zinc-900">
                 <CardHeader>
@@ -223,7 +223,7 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
                         <div className="flex items-center gap-2">
                             <h3 className="text-xl font-medium">Email & Communication</h3>
                         </div>
-                        <div className="rounded-lg border border-zinc-800 p-3 space-y-4">
+                        <div className="p-3 space-y-4 border rounded-lg border-zinc-800">
                             <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
                                     <div className="font-medium">
@@ -261,9 +261,9 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
                         <div className="flex items-center gap-2">
                             <h3 className="text-xl font-medium">Account Actions</h3>
                         </div>
-                        <div className="rounded-lg border border-zinc-800 p-4">
-                            <Button variant="destructive" onClick={logout} className="bg-red-600 hover:bg-red-700 text-white">
-                                <LogOut className="mr-2 h-4 w-4" />
+                        <div className="p-4 border rounded-lg border-zinc-800">
+                            <Button variant="destructive" onClick={logout} className="text-white bg-red-600 hover:bg-red-700">
+                                <LogOut className="w-4 h-4 mr-2" />
                                 Log Out
                             </Button>
                         </div>
@@ -273,10 +273,10 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
 
             {/* change email */}
             <Dialog open={emailChangeOpen} onOpenChange={setEmailChangeOpen}>
-                <DialogContent className="sm:max-w-md bg-zinc-900 border border-zinc-800">
+                <DialogContent className="border sm:max-w-md bg-zinc-900 border-zinc-800">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
-                            <Mail className="h-5 w-5" />
+                            <Mail className="w-5 h-5" />
                             Change Email Address
                         </DialogTitle>
                         <DialogDescription>
@@ -284,16 +284,16 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-4 py-4">
+                    <div className="py-4 space-y-4">
                         {errorMessage && (
-                            <Alert variant="destructive" className="bg-red-900/30 border-red-900 text-red-50">
-                                <AlertCircle className="h-4 w-4" />
+                            <Alert variant="destructive" className="border-red-900 bg-red-900/30 text-red-50">
+                                <AlertCircle className="w-4 h-4" />
                                 <AlertDescription>{errorMessage}</AlertDescription>
                             </Alert>
                         )}
                         
                         {successMessage && (
-                            <Alert className="bg-green-900/30 border-green-900 text-green-50">
+                            <Alert className="border-green-900 bg-green-900/30 text-green-50">
                                 <AlertDescription>{successMessage}</AlertDescription>
                             </Alert>
                         )}
@@ -341,7 +341,7 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
                         </div>
                     </div>
 
-                    <DialogFooter className="flex-col sm:flex-row sm:justify-end gap-2">
+                    <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
                         <Button
                             variant="outline"
                             onClick={closeEmailDialog}
@@ -352,7 +352,7 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
                         <Button 
                             onClick={changeEmail}
                             disabled={isSubmitting || !!successMessage}
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            className="text-white bg-blue-600 hover:bg-blue-700"
                         >
                             {isSubmitting ? "Processing..." : "Update Email"}
                         </Button>

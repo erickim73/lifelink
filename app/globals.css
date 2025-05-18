@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -83,7 +82,6 @@
   --font-playfairDisplay: 'Playfair Display', serif;
 
   --font-sans: var(--font-poppins);
-
 }
 
 .dark {
@@ -123,7 +121,7 @@
 @layer base {
   html,
   body {
-    @apply h-full w-full overflow-x-hidden overflow-y-auto;
+    @apply w-full h-full overflow-x-hidden overflow-y-auto;
   }
 
   * {
@@ -133,4 +131,37 @@
   body {
     @apply bg-[#21211f] text-foreground;
   }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes pulse-subtle {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
 }

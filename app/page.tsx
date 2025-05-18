@@ -6,6 +6,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Heart, Shield, Activity, Brain, Leaf, Menu, X, ChevronRight } from "lucide-react"
 import { CardContainer, CardItem } from "@/components/ui/3d-card";
+import { Spotlight } from "@/components/ui/spotlight-new";
 
 
 const footerLinks = [
@@ -54,6 +55,7 @@ export default function LandingPage() {
 
 	return (
 		<div className="min-h-screen bg-[#0F172A] text-white overflow-hidden">
+			<Spotlight />
 			{/* Subtle background pattern */}
 			<div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] pointer-events-none"></div>
 
@@ -226,25 +228,19 @@ export default function LandingPage() {
 						</motion.p>
 						
 
-						<motion.div
+						 <motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.6, delay: 0.3 }}
 							className="flex flex-col justify-center gap-4 sm:flex-row"
 						>
-						<Link
-							href="/signup"
-							className="bg-gradient-to-r from-[#4FACFE] to-[#00F2FE] hover:opacity-90 px-8 py-4 rounded-full font-medium transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 group"
-						>
-							Start your health journey
-							<ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-						</Link>
-						<Link
-							href="#how-it-works"
-							className="flex items-center justify-center gap-2 px-8 py-4 font-medium transition-all rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-sm"
-						>
-							See how it works
-						</Link>
+							<Link
+								href="/signup"
+								className="bg-gradient-to-r from-[#4FACFE] to-[#00F2FE] hover:opacity-90 px-8 py-4 rounded-full font-medium transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 group"
+							>
+								Start your health journey
+								<ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+							</Link>							
 						</motion.div>
 					</div>
 

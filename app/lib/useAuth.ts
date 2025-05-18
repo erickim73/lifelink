@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 import { Session } from '@supabase/supabase-js'
 import { useSearchParams } from 'next/navigation';

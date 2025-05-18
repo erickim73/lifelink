@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { AlertCircle, ChevronDown } from "lucide-react"
 
+
 const Onboarding = () => {
 	const [loading, setLoading] = useState(false)
 	const [session, setSession] = useState<Session | null>(null)

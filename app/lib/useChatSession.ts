@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react' // Added useCallback import
 import { supabase } from './supabase-client'
 import { Session } from '@supabase/supabase-js';
 import { NewChatMessage, ChatMessage } from '@/app/lib/types';
@@ -19,40 +19,7 @@ function useChatSession({sessionId}: {sessionId: string}) {
         })
     }, [])
 
-    // load messages and check for pending responses
-    useEffect(() => {
-        if (!sessionId || !authSession?.user?.id) {
-            return
-        }
-
-        const fetchMessages = async () => {
-            try {
-                const {data, error} = await supabase.from("chat_messages").select("*").eq('session_id', sessionId).order('created_at')
-
-                if (error) {
-                    console.error("Error fetching chat messages: ", error.message)
-                    return
-                }
-
-                setPrompts(data as ChatMessage[])
-
-                // if first message
-                if (!pendingResponseCheckedRef.current && authSession?.user?.id && data && data.length > 0) {
-                    pendingResponseCheckedRef.current = true
-                    const lastMessage = data[data.length - 1] as ChatMessage
-
-                    if (lastMessage.sender === 'user') {
-                        console.log("Found pending user message, initiating AI response")
-                        initiateAIResponse(lastMessage.content, authSession.user.id)
-                    }
-                }
-                firstLoadRef.current = false
-            } catch (error) {
-                console.error("Error fetching chat session: ", error)
-            }
-        }
-        fetchMessages()
-    }, [sessionId, authSession])
+    
 
     // realtime subscription for new messages
     useEffect(() => {
@@ -84,7 +51,7 @@ function useChatSession({sessionId}: {sessionId: string}) {
     }, [sessionId])
 
     // helper function for streaming ai response
-    const streamAIResponse = async (res: Response, userId: string) => {
+    const streamAIResponse = useCallback(async (res: Response, userId: string): Promise<string> => {
         const reader = res.body?.getReader()
         const decoder = new TextDecoder('utf-8')
         let streamedContent = ''
@@ -107,7 +74,6 @@ function useChatSession({sessionId}: {sessionId: string}) {
                 setIsLoading(false); 
             }
 
-
             streamedContent += clean;
 
             setPrompts((prev) => {
@@ -128,10 +94,13 @@ function useChatSession({sessionId}: {sessionId: string}) {
                 }
             })
         }
-        return streamedContent
-    }
 
-    const initiateAIResponse = async (promptContent: string, userId: string) => {
+        return streamedContent
+    }, [sessionId])
+
+
+    // Wrapped in useCallback to stabilize between renders
+    const initiateAIResponse = useCallback(async (promptContent: string, userId: string) => {
         if (!authSession || !promptContent || !sessionId) {
             return
         }
@@ -186,7 +155,42 @@ function useChatSession({sessionId}: {sessionId: string}) {
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [authSession, sessionId, setPrompts, setIsLoading, streamAIResponse]) // Added dependencies here
+
+    // load messages and check for pending responses
+    useEffect(() => {
+        if (!sessionId || !authSession?.user?.id) {
+            return
+        }
+
+        const fetchMessages = async () => {
+            try {
+                const {data, error} = await supabase.from("chat_messages").select("*").eq('session_id', sessionId).order('created_at')
+
+                if (error) {
+                    console.error("Error fetching chat messages: ", error.message)
+                    return
+                }
+
+                setPrompts(data as ChatMessage[])
+
+                // if first message
+                if (!pendingResponseCheckedRef.current && authSession?.user?.id && data && data.length > 0) {
+                    pendingResponseCheckedRef.current = true
+                    const lastMessage = data[data.length - 1] as ChatMessage
+
+                    if (lastMessage.sender === 'user') {
+                        console.log("Found pending user message, initiating AI response")
+                        initiateAIResponse(lastMessage.content, authSession.user.id)
+                    }
+                }
+                firstLoadRef.current = false
+            } catch (error) {
+                console.error("Error fetching chat session: ", error)
+            }
+        }
+        fetchMessages()
+    }, [sessionId, authSession, initiateAIResponse]) // Now initiateAIResponse is stable between renders
 
     const handleSubmit = async (promptContent: string) => {
         if (!promptContent.trim() || !authSession?.user.id || !sessionId) {
