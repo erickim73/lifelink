@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import MainChat from './MainChat'
+import MainChat from './mainchat'
 
 export default function ChatPage() {
 	return (

@@ -9,17 +9,14 @@ function useChatSession({sessionId}: {sessionId: string}) {
     const [prompts, setPrompts] = useState<ChatMessage[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const pendingResponseCheckedRef = useRef(false)
-    const firstLoadRef = useRef(true)
-    
+    const firstLoadRef = useRef(true)    
     
     // get auth session on component mount
     useEffect(() => {
         supabase.auth.getSession().then(({data: {session}}) => {
             setAuthSession(session)
         })
-    }, [])
-
-    
+    }, [])    
 
     // realtime subscription for new messages
     useEffect(() => {
@@ -55,7 +52,6 @@ function useChatSession({sessionId}: {sessionId: string}) {
         const reader = res.body?.getReader()
         const decoder = new TextDecoder('utf-8')
         let streamedContent = ''
-        let hasStartedStreaming = false
 
         if (!reader) {
             return ''
@@ -63,16 +59,13 @@ function useChatSession({sessionId}: {sessionId: string}) {
 
         while (true) {
             const {value, done} = await reader.read()
-            if (done) break
-
+            if (done) {
+                setIsLoading(false)
+                break
+            }
             const clean = decoder.decode(value, { stream: true }).replace(/^data:\s?/gm, "");
 
             if (clean.trim() === '[DONE]') continue;
-        
-            if (!hasStartedStreaming && clean.trim()) {
-                hasStartedStreaming = true;
-                setIsLoading(false); 
-            }
 
             streamedContent += clean;
 
@@ -152,7 +145,6 @@ function useChatSession({sessionId}: {sessionId: string}) {
         } catch (error) {
             console.error("Error getting response: ", error)
             setPrompts((prev) => prev.filter(msg => msg.message_id !== 'temp-loading-message'))
-        } finally {
             setIsLoading(false)
         }
     }, [authSession, sessionId, setPrompts, setIsLoading, streamAIResponse]) // Added dependencies here
@@ -190,7 +182,7 @@ function useChatSession({sessionId}: {sessionId: string}) {
             }
         }
         fetchMessages()
-    }, [sessionId, authSession, initiateAIResponse]) // Now initiateAIResponse is stable between renders
+    }, [sessionId, authSession, initiateAIResponse]) 
 
     const handleSubmit = async (promptContent: string) => {
         if (!promptContent.trim() || !authSession?.user.id || !sessionId) {
@@ -248,9 +240,8 @@ function useChatSession({sessionId}: {sessionId: string}) {
             await supabase.from("chat_sessions").update({"updated_at":new Date().toISOString}).eq("session_id", sessionId)
         } catch (error) {
             console.error("Error processing message:", error)
-        } finally {
             setIsLoading(false)
-        }
+        } 
     }
 
     return {prompts, isLoading, handleSubmit, authSession}

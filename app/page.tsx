@@ -52,26 +52,10 @@ export default function LandingPage() {
 		return () => window.removeEventListener("scroll", handleScroll)
 	}, [])
 
-	useEffect(() => {
-		// Apply styles to html and body to take full width
-		document.documentElement.style.width = '100%';
-		document.documentElement.style.overflowX = 'hidden';
-		document.body.style.width = '100%';
-		document.body.style.overflowX = 'hidden';
-		
-		// Cleanup function
-		return () => {
-			document.documentElement.style.width = '';
-			document.documentElement.style.overflowX = '';
-			document.body.style.width = '';
-			document.body.style.overflowX = '';
-		};
-	}, []);
+	;
 
 	return (
-		<div className="min-h-screen bg-[#0F172A] text-white overflow-hidden">
-			
-
+		<div className="min-h-screen bg-[#0F172A] text-white">
 			{/* Subtle background pattern */}
 			<div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] pointer-events-none"></div>
 
@@ -263,7 +247,7 @@ export default function LandingPage() {
 					{/* Dashboard Preview */}
 					<div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]"></div>                
 					<CardContainer className="inter-var">
-						<CardItem translateZ="100" className="w-full mt-4 overflow-hidden rounded-xl">
+						<CardItem translateZ="100" className="w-full mx-auto mt-4 overflow-hidden sm:w-3/4 md:w-3/5 lg:w-1/2 rounded-xl">
 							<div className="h-8 bg-[#1E293B] border-b border-white/10 flex items-center px-4 gap-2">
 								<div className="w-3 h-3 rounded-full bg-red-500/60"></div>
 								<div className="w-3 h-3 rounded-full bg-yellow-500/60"></div>
