@@ -35,22 +35,12 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
         const checkForEmailChangeToken = async () => {
             const params = new URLSearchParams(window.location.search)
             const token = params.get('token')
-            const type = params.get('type')
             
             // For debugging - log all URL parameters to see what Supabase is actually sending
-            console.log('URL Parameters:', Object.fromEntries(params.entries()))
             
             // Handle more verification types and parameter variations
             if (token) {
-                let verifyType = 'email_change'
-                
-                // If a specific type is in the URL, use that instead
-                if (type) {
-                    verifyType = type
-                }
-                
                 try {
-                    console.log(`Verifying token with type: ${verifyType}`)
                     
                     // Use the general verification method for the token
                     const { error } = await supabase.auth.verifyOtp({
@@ -166,7 +156,6 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
             
             // Make sure the redirect URL is properly formatted
             const redirectTo = new URL('/settings', window.location.origin).toString()
-            console.log('Redirect URL:', redirectTo)
             
             // Then update the email address with the properly formatted redirect URL
             const { error } = await supabase.auth.updateUser(
@@ -174,8 +163,6 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
                 { emailRedirectTo: redirectTo }
             )
             
-            console.log('Old email:', email)
-            console.log('New email:', newEmail)
             
             if (error) {
                 console.error('Email update error:', error)
@@ -203,7 +190,6 @@ const Account = ({notifications, setNotifications}: SettingsAccount) => {
 
     const logout = async () => {
         await supabase.auth.signOut();
-        console.log("Logged out")
         router.push('/')
     }
 

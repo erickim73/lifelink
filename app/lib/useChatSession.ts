@@ -140,7 +140,6 @@ function useChatSession({sessionId}: {sessionId: string}) {
                     content: streamedContent.trimStart()
                 }
                 await supabase.from("chat_messages").insert(finalModelMessage)
-                console.log("Inserted model message: ", finalModelMessage)
             }       
         } catch (error) {
             console.error("Error getting response: ", error)
@@ -172,7 +171,6 @@ function useChatSession({sessionId}: {sessionId: string}) {
                     const lastMessage = data[data.length - 1] as ChatMessage
 
                     if (lastMessage.sender === 'user') {
-                        console.log("Found pending user message, initiating AI response")
                         initiateAIResponse(lastMessage.content, authSession.user.id)
                     }
                 }
@@ -186,7 +184,6 @@ function useChatSession({sessionId}: {sessionId: string}) {
 
     const handleSubmit = async (promptContent: string) => {
         if (!promptContent.trim() || !authSession?.user.id || !sessionId) {
-            console.log("Cannot submit: missing prompt, user ID, or session ID")
             return
         }
 

@@ -45,7 +45,6 @@ const ResetPassword = () => {
             if (resetError) throw resetError
             
             setSuccess(true)
-            console.log('Password reset successfully')
             
             // Redirect after a short delay
             setTimeout(() => {

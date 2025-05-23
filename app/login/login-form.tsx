@@ -69,7 +69,6 @@ const Login = () => {
                 return
             } 
 
-            console.log("Successfully signed in with user ID:", signedInSession.user.id)
             router.push('/chat')
         } catch (error: unknown) {
             if (error instanceof Error) {

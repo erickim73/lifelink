@@ -51,7 +51,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setSessionId(session)
-            console.log("Auth event:", _event)
         })
 
         return () => subscription.unsubscribe()
@@ -61,7 +60,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         if (noSideBarPage) return
 
         if (!sessionId?.user?.id) {
-            console.log("No session ID provided")
             return
         }
 

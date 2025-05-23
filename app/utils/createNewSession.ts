@@ -13,6 +13,5 @@ export const createNewSession = async (session: Session | null) => {
         console.error("Error creating new chat session: ", error.message)
         return
     }
-    console.log("New chat session created:", data)
     return data.session_id
 }

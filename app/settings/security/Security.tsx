@@ -24,7 +24,6 @@ const Security = () => {
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session)
-            console.log("Auth event:", _event)
         })
 
         return () => subscription.unsubscribe()
@@ -67,11 +66,11 @@ const Security = () => {
 
     
     return (
-        <div className="h-full w-full p-6 overflow-y-auto">
+        <div className="w-full h-full p-6 overflow-y-auto">
             <Card className="w-full">
                 <CardHeader>
                     <div className="flex items-center gap-2">
-                        <Shield className="h-5 w-5 text-blue-500" />
+                        <Shield className="w-5 h-5 text-blue-500" />
                         <CardTitle>Security Settings</CardTitle>
                     </div>
                     <CardDescription>Manage your account security and protection</CardDescription>
@@ -80,11 +79,11 @@ const Security = () => {
                 <CardContent className="space-y-6">
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <Key className="h-5 w-5 text-blue-500" />
+                            <Key className="w-5 h-5 text-blue-500" />
                             <h3 className="text-xl font-medium">Password & Authentication</h3>
                         </div>
-                        <div className="rounded-lg border border-zinc-800 p-4">
-                            <p className="text-gray-400 mb-4">
+                        <div className="p-4 border rounded-lg border-zinc-800">
+                            <p className="mb-4 text-gray-400">
                                 We recommend using a strong, unique password and enabling two-factor authentication when available.
                             </p>
                             <Link href='/reset'>
@@ -99,19 +98,19 @@ const Security = () => {
 
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-red-500" />
+                            <AlertTriangle className="w-5 h-5 text-red-500" />
                             <h3 className="text-xl font-medium text-red-500">Danger Zone</h3>
                         </div>
-                        <div className="rounded-lg border border-red-900/30 bg-red-950/20 p-4">
-                            <p className="text-gray-300 mb-4">
+                        <div className="p-4 border rounded-lg border-red-900/30 bg-red-950/20">
+                            <p className="mb-4 text-gray-300">
                                 Once you delete your account, there is no going back. All of your data will be permanently removed.
                             </p>
                             <Button
                                 variant="destructive"
                                 onClick={openConfirmation}
-                                className="bg-red-600 hover:bg-red-700 text-white"
+                                className="text-white bg-red-600 hover:bg-red-700"
                             >
-                                <AlertTriangle className="mr-2 h-4 w-4" />
+                                <AlertTriangle className="w-4 h-4 mr-2" />
                                 Delete Account
                             </Button>
                         </div>
@@ -130,8 +129,8 @@ const Security = () => {
                     </DialogHeader>
 
                     <div className="py-4">
-                        <Alert variant="destructive" className="bg-red-950/30 border-red-900/50 text-red-200">
-                            <AlertTriangle className="h-4 w-4" />
+                        <Alert variant="destructive" className="text-red-200 bg-red-950/30 border-red-900/50">
+                            <AlertTriangle className="w-4 h-4" />
                             <AlertDescription>
                                 All your personal information, chat history, and settings will be permanently deleted.
                             </AlertDescription>

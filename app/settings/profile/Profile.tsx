@@ -42,7 +42,6 @@ const Profile = () => {
         if (error) {
           console.error("Error fetching user profile: ", error)
         } else if (data) {
-          console.log("Gender from database:", data.gender)
 
           let normalizedGender = ""
           if (data.gender) {
@@ -85,7 +84,6 @@ const Profile = () => {
       return
     }
     if (!authSession) {
-      console.log("No session found, redirecting to login")
       router.replace("/login")
     }
   }, [authSession, loading, router])
@@ -154,7 +152,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full w-full">
+      <div className="flex items-center justify-center w-full h-full">
         <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
       </div>
     )
@@ -162,9 +160,9 @@ const Profile = () => {
 
   if (!authSession) {
     return (
-      <div className="flex flex-col items-center justify-center h-full w-full text-white">
+      <div className="flex flex-col items-center justify-center w-full h-full text-white">
         <Shield className="w-12 h-12 mb-4 text-red-400" />
-        <h1 className="text-2xl font-bold mb-2">Authentication Required</h1>
+        <h1 className="mb-2 text-2xl font-bold">Authentication Required</h1>
         <p className="text-gray-400">Please sign in to view your profile</p>
       </div>
     )
@@ -173,12 +171,12 @@ const Profile = () => {
   return (
     <div className="w-full p-6 overflow-y-auto">
       <Card className="w-full bg-zinc-900 border-zinc-800">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+        <CardHeader className="flex flex-col items-start justify-between space-y-3 sm:flex-row sm:items-center sm:space-y-0">
           <div>
             <CardTitle>Profile</CardTitle>
             <CardDescription className="py-1">Manage your personal information and preferences</CardDescription>
           </div>
-          <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex w-full gap-2 sm:w-auto">
             {isEditing ? (
               <>
                 <Button
@@ -188,7 +186,7 @@ const Profile = () => {
                   disabled={isSaving}
                   className="flex-1 sm:flex-none"
                 >
-                  <X className="h-4 w-4 mr-2" />
+                  <X className="w-4 h-4 mr-2" />
                   Cancel
                 </Button>
                 <Button
@@ -197,7 +195,7 @@ const Profile = () => {
                   disabled={isSaving}
                   className="flex-1 sm:flex-none"
                 >
-                  {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                   Save Changes
                 </Button>
               </>
@@ -215,7 +213,7 @@ const Profile = () => {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="firstName">First Name</Label>
               <Input
@@ -240,7 +238,7 @@ const Profile = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="gender">Gender</Label>
               <Select

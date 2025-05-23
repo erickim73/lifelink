@@ -57,15 +57,12 @@ const Onboarding = () => {
 
 		const {data: { subscription }} = supabase.auth.onAuthStateChange((_event, session) => {
 			setSession(session)
-			console.log("Auth event:", _event)
 		})
 
 		return () => subscription.unsubscribe()
 	}, [])
 
 	const onSubmit = async (data: UserFormData) => {
-		console.log("Submitting User Data: ", data)
-
 		const transformedUserData = {
 			user_id: session?.user.id,
 			first_name: data.firstName,
@@ -87,7 +84,6 @@ const Onboarding = () => {
 
 		try {
 			await supabase.from("profiles").insert(transformedUserData)
-			console.log("Inserted User Data: ", transformedUserData)
 			router.push("/chat")
 		} catch (error) {
 			console.error("Error inserting user data: ", error)
