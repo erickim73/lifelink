@@ -27,7 +27,7 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "LifeLink",
+  title: "LifeLink - Personalized Medical Advice",
   description: "Your elegant LifeLink application",
 }
 
@@ -41,7 +41,7 @@ export default function RootLayout({
 			<body className={`${poppins.variable} ${playfairDisplay.variable}  antialiased`}>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 					<SidebarProvider>
-						<div className="flex h-screen w-full overflow-hidden">
+						<div className="flex w-full h-screen overflow-hidden">
 							<AppSidebar />
 							<main className="flex-1 overflow-auto">
 								{children}
