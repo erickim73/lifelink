@@ -28,10 +28,10 @@ const MessageInput: React.FC<MessageInputProps> = ({value, isLoading, onChange, 
 
 
     return (
-        <div className="w-full bg-zinc-900">
-            <div className="max-w-3xl mx-auto px-4 w-full py-2">
+        <div className="fixed bottom-0 left-0 right-0 z-40 w-full border-t bg-zinc-900 border-zinc-800 md:relative md:border-t-0 md:z-auto">
+            <div className="w-full max-w-3xl px-4 py-3 mx-auto pb-safe md:py-2">
                 <form onSubmit={onSubmit} className="w-full">
-                    <div className="relative w-full flex flex-col bg-zinc-800 rounded-2xl px-4 sm:px-5 py-3 shadow-lg border border-zinc-700">
+                    <div className="relative flex flex-col w-full px-4 py-3 border shadow-lg bg-zinc-800 rounded-2xl sm:px-5 border-zinc-700">
                         <div className="w-full" style={{ minWidth: "100%" }}>
                             <textarea
                                 ref={textareaRef}
@@ -39,7 +39,7 @@ const MessageInput: React.FC<MessageInputProps> = ({value, isLoading, onChange, 
                                 value={value}
                                 onChange={onChange}
                                 rows={2}
-                                className="w-full bg-transparent rounded-2xl outline-none text-white placeholder-gray-400 py-1 resize-none"
+                                className="w-full py-1 text-white placeholder-gray-400 bg-transparent outline-none resize-none rounded-2xl"
                                 style={{
                                     minHeight: '40px',
                                     maxHeight: '200px',
@@ -68,7 +68,7 @@ const MessageInput: React.FC<MessageInputProps> = ({value, isLoading, onChange, 
                                 className="bg-[#1A4B84] text-black font-medium p-3 rounded-xl hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? (
-                                    <div className="h-5 w-5 border-2 border-gray-600 border-t-white rounded-full animate-spin"></div>
+                                    <div className="w-5 h-5 border-2 border-gray-600 rounded-full border-t-white animate-spin"></div>
                                 ) : (
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-up">
                                         <path d="m5 12 7-7 7 7"/>

@@ -91,7 +91,7 @@ export default function MainChat() {
 	return (
 		<div className="relative flex flex-col w-full h-full bg-zinc-900">
 			{/* Header with toggle for mobile */}
-			 <header className="flex items-center justify-between p-4 border-b border-zinc-800 md:hidden">
+			 <header className="sticky top-0 z-50 flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-900 md:hidden">
 				<SidebarTrigger className="flex-none" />
 				<div className="flex items-center justify-center flex-grow">
 					<Image alt="LifeLink Logo" src="/lifelink_logo.png" width={28} height={28} className="mr-2" />
@@ -101,11 +101,11 @@ export default function MainChat() {
 			</header>
 
 			{/* Main content */}
-			<div className="flex flex-col items-center justify-center flex-grow w-full px-4 overflow-auto">
-				<div className="w-full max-w-3xl mx-auto my-auto">
-					<div className="flex items-center justify-center gap-4 mb-8 md:mb-10">
+			<div className="flex flex-col items-center justify-center flex-grow w-full overflow-auto">
+				<div className="w-full max-w-3xl px-4 py-8 mx-auto my-auto md:py-0">
+          			<div className="flex items-center justify-center gap-4 mb-8 md:mb-10">
 						<Image alt="LifeLink Logo" src="/lifelink_logo.png" width={40} height={40} />
-            <h1 className="text-2xl font-semibold sm:text-3xl md:text-4xl">What can I help you with?</h1>
+            			<h1 className="text-2xl font-semibold sm:text-3xl md:text-4xl">What can I help you with?</h1>
 					</div>
 
 					<form onSubmit={handleSubmit} className="w-full">

@@ -247,9 +247,12 @@ export default function LandingPage() {
 					</div>
 
 					{/* Dashboard Preview */}
-					<div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px] pointer-events-none"></div>         
+					<div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px] pointer-events-none"></div>
 					<CardContainer className="inter-var">
-						<CardItem translateZ="100" className="w-full mx-auto mt-4 overflow-hidden sm:w-3/4 md:w-3/5 lg:w-1/2 rounded-xl">
+						<CardItem
+							translateZ="100"
+							className="w-full mx-auto mt-4 overflow-hidden sm:w-5/6 md:w-4/5 lg:w-4/5 xl:w-3/4 rounded-xl"
+						>
 							<div className="h-8 bg-[#1E293B] border-b border-white/10 flex items-center px-4 gap-2">
 								<div className="w-3 h-3 rounded-full bg-red-500/60"></div>
 								<div className="w-3 h-3 rounded-full bg-yellow-500/60"></div>
@@ -258,12 +261,12 @@ export default function LandingPage() {
 							<Image
 								src="/dashboard.png"
 								alt="LifeLink Dashboard"
-								width={1200}
-								height={675}
+								width={1400}
+								height={800}
 								className="w-full group-hover/card:shadow-xl"
 							/>
 						</CardItem>
-					</CardContainer>         
+					</CardContainer>
 
 					{/* Trust indicators */}
 					<motion.div

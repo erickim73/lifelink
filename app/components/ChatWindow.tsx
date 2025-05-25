@@ -102,8 +102,8 @@ const ChatWindow = ({prompts, isLoading, endRef}: Props) => {
             <div
                 className="w-full max-w-3xl px-4 mx-auto"
                 style={{
-                paddingTop: isMobile ? "1.5rem" : "1.5rem",
-                paddingBottom: "0.5rem", // Minimal padding at bottom
+                    paddingTop: isMobile ? "1.5rem" : "1.5rem",
+                    paddingBottom: isMobile ? "120px" : "0.5rem",
                 }}
             >
                 {prompts.length === 0 && !isLoading && (
@@ -141,7 +141,7 @@ const ChatWindow = ({prompts, isLoading, endRef}: Props) => {
                         </div>
                     </div>
                 )}
-            <div ref={endRef} className="h-1" />
+            <div ref={endRef} className="h-4" />
             
             </div>
         </div>

@@ -64,7 +64,7 @@ const SignUp = () => {
                 </p>
             </div>
 
-            <div className="p-5 border shadow-lg bg-zinc-800 rounded-xl sm:rounded-2xl sm:p-6 border-zinc-700">
+            <div className="p-4 sm:p-5 md:p-6 border shadow-lg bg-zinc-800/90 rounded-xl sm:rounded-2xl border-zinc-700 w-full max-w-[320px] sm:max-w-[360px] md:max-w-md">
                 {error && (
                     <div 
                         className="p-3 mb-5 text-sm text-red-200 border rounded-lg bg-red-500/10 border-red-500/50 sm:p-3 sm:mb-6 sm:text-base"
@@ -78,8 +78,8 @@ const SignUp = () => {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-5">
-                    <div className="space-y-2 sm:space-y-2">
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                    <div className="space-y-1 sm:space-y-2">
                         <label htmlFor="email" className="block text-sm font-medium text-gray-300 sm:text-sm">
                             Email address
                         </label>
@@ -89,7 +89,7 @@ const SignUp = () => {
                             placeholder="Enter your email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className={`w-full bg-zinc-700 rounded-lg sm:rounded-xl outline-none text-white placeholder-gray-400 py-3 sm:py-3 px-4 sm:px-4 text-base sm:text-base focus:ring-2 focus:ring-blue-500/50 ${
+                            className={`w-full bg-zinc-700 rounded-lg sm:rounded-xl outline-none text-white placeholder-gray-400 py-3 sm:px-4 sm:py-3 text-base sm:text-base focus:ring-2 focus:ring-blue-500/50 ${
                                 formSubmitted && !isValidEmail(email) ? "border border-red-500" : ""
                             }`}
                             required
@@ -115,9 +115,7 @@ const SignUp = () => {
                                 placeholder="Create a strong password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className={`w-full bg-zinc-700 rounded-lg sm:rounded-xl outline-none text-white placeholder-gray-400 py-3 sm:py-3 px-4 sm:px-4 pr-10 text-base sm:text-base focus:ring-2 focus:ring-blue-500/50 ${
-                                    formSubmitted && password.length < 8 ? "border border-red-500" : ""
-                                }`}
+                                className='w-full px-4 py-3 pr-10 text-base text-white placeholder-gray-400 rounded-lg outline-none bg-zinc-700 sm:rounded-xl sm:py-3 sm:px-4 sm:text-base focus:ring-2 focus:ring-blue-500/50'
                                 required
                                 aria-required="true"
                                 aria-describedby="password-requirements"
@@ -132,11 +130,6 @@ const SignUp = () => {
                                 {showPassword ? <EyeOff size={20} className="sm:size={20}" /> : <Eye size={20} className="sm:size={20}" />}
                             </button>
                         </div>
-                        {formSubmitted && password.length < 8 && (
-                            <p id="password-requirements" className="mt-1 text-sm text-red-400 sm:text-sm">
-                                Password must be at least 8 characters
-                            </p>
-                        )}
                     </div>                       
 
                     <button 
