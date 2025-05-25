@@ -572,7 +572,7 @@ export default function LandingPage() {
 
 								<Link
 									href="/signup"
-									className="bg-gradient-to-r from-[#4FACFE] to-[#00F2FE] hover:opacity-90 px-5 py-2.5 rounded-full text-sm font-medium transition-all shadow-lg shadow-blue-500/20 cursor-pointer"
+									className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#4FACFE] to-[#00F2FE] hover:opacity-90 px-8 py-4 rounded-full font-medium transition-all shadow-lg shadow-blue-500/20 group cursor-pointer"
 									prefetch={false}
 								>
 									Get Started
