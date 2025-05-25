@@ -44,6 +44,7 @@ export default function LandingPage() {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 	const [scrolled, setScrolled] = useState(false)
 
+
 	useEffect(() => {
 		const handleScroll = () => {
 			setScrolled(window.scrollY > 20)
@@ -52,7 +53,6 @@ export default function LandingPage() {
 		return () => window.removeEventListener("scroll", handleScroll)
 	}, [])
 
-	;
 
 	return (
 		<div className="min-h-screen bg-[#0F172A] text-white">
@@ -108,7 +108,8 @@ export default function LandingPage() {
 						</Link>
 						<Link
 							href="/signup"
-							className="bg-gradient-to-r from-[#4FACFE] to-[#00F2FE] hover:opacity-90 px-5 py-2.5 rounded-full text-sm font-medium transition-all shadow-lg shadow-blue-500/20"
+							className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#4FACFE] to-[#00F2FE] hover:opacity-90 px-8 py-4 rounded-full font-medium transition-all shadow-lg shadow-blue-500/20 group cursor-pointer"
+							prefetch={false}
 						>
 							Get started
 						</Link>
@@ -228,24 +229,25 @@ export default function LandingPage() {
 						</motion.p>
 						
 
-						 <motion.div
+						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.6, delay: 0.3 }}
-							className="flex flex-col justify-center gap-4 sm:flex-row"
-						>
+							className="relative z-10 flex flex-col justify-center gap-4 sm:flex-row"
+							>
 							<Link
 								href="/signup"
-								className="bg-gradient-to-r from-[#4FACFE] to-[#00F2FE] hover:opacity-90 px-8 py-4 rounded-full font-medium transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 group"
+								className="relative bg-gradient-to-r from-[#4FACFE] to-[#00F2FE] hover:opacity-90 px-8 py-4 rounded-full font-medium transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 group cursor-pointer z-10"
+								style={{ pointerEvents: "auto" }}
 							>
 								Start your health journey
 								<ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-							</Link>							
+							</Link>
 						</motion.div>
 					</div>
 
 					{/* Dashboard Preview */}
-					<div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]"></div>                
+					<div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px] pointer-events-none"></div>         
 					<CardContainer className="inter-var">
 						<CardItem translateZ="100" className="w-full mx-auto mt-4 overflow-hidden sm:w-3/4 md:w-3/5 lg:w-1/2 rounded-xl">
 							<div className="h-8 bg-[#1E293B] border-b border-white/10 flex items-center px-4 gap-2">
@@ -567,7 +569,8 @@ export default function LandingPage() {
 
 								<Link
 									href="/signup"
-									className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#4FACFE] to-[#00F2FE] hover:opacity-90 px-8 py-4 rounded-full font-medium transition-all shadow-lg shadow-blue-500/20 group"
+									className="bg-gradient-to-r from-[#4FACFE] to-[#00F2FE] hover:opacity-90 px-5 py-2.5 rounded-full text-sm font-medium transition-all shadow-lg shadow-blue-500/20 cursor-pointer"
+									prefetch={false}
 								>
 									Get Started
 									<ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
