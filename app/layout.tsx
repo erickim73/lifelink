@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css"
 import {Poppins} from 'next/font/google'
 import { Playfair_Display } from 'next/font/google'
+import { Analytics } from "@vercel/analytics/next"
 
 
 import '@fontsource/inter/300.css'; // Light
@@ -48,6 +49,7 @@ export default function RootLayout({
 							<AppSidebar />
 							<main className="flex-1 overflow-auto">
 								{children}
+								<Analytics />
 							</main>
 							<Toaster />
 						</div>
