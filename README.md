@@ -7,7 +7,7 @@
   
   **Personalized health insights for a balanced life**
   
-  [Website Link](https://lifelink-app.vercel.app/) | [Getting Started](#getting-started) 
+  [Website Link](https://lifelink-app.vercel.app/) | [Getting Started](#getting-started) | [Backend Repo](https://github.com/erickim73/lifelink_backend)
 </div>
 
 ---
