@@ -1,4 +1,4 @@
-'use client'
+'use client' 
 
 import React , {useEffect} from 'react'
 import { ChatMessage } from '../lib/types';
@@ -20,7 +20,21 @@ const ChatWindow = ({prompts, isLoading, endRef}: Props) => {
         endRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [prompts, endRef])
 
+    const isControlMessage = (content: string): boolean => {
+        const trimmed = content.trim()
+        return (
+            trimmed === '[DONE]' ||
+            trimmed.startsWith('data:') ||
+            trimmed === '' ||
+            trimmed === '...'
+        )
+    }
+
     function formatMessage(text: string): React.ReactNode {
+        if (isControlMessage(text)) {
+            return null
+        }
+        
         const formattedText = text
             .replace(/^\s+|\s+$/g, "") // trim leading / trailing whitespace
             .replace(/\r\n/g, "\n") // normalise line endings
@@ -62,7 +76,7 @@ const ChatWindow = ({prompts, isLoading, endRef}: Props) => {
                 // Check if paragraph starts with a dash (bullet point)
                 else if (paragraph.startsWith("- ")) {
                     return (
-                        <div key={index} className="mb-4 flex">
+                        <div key={index} className="flex mb-4">
                             <span className="mr-2 font-bold">•</span>
                             <span>{paragraph.substring(2)}</span>
                         </div>
@@ -84,9 +98,9 @@ const ChatWindow = ({prompts, isLoading, endRef}: Props) => {
 
 
     return (
-        <div className="h-full w-full overflow-y-auto bg-zinc-900">
+        <div className="w-full h-full overflow-y-auto bg-zinc-900">
             <div
-                className="w-full max-w-3xl mx-auto px-4"
+                className="w-full max-w-3xl px-4 mx-auto"
                 style={{
                 paddingTop: isMobile ? "1.5rem" : "1.5rem",
                 paddingBottom: "0.5rem", // Minimal padding at bottom
@@ -119,11 +133,11 @@ const ChatWindow = ({prompts, isLoading, endRef}: Props) => {
                 ))}
 
                 {isLoading && (
-                    <div className='flex justify-center items-center py-4'>
-                        <div className='animate-pulse flex space-x-2'>
-                            <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
-                            <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce delay-100"></div>
-                            <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce delay-200"></div>
+                    <div className='flex items-center justify-center py-4'>
+                        <div className='flex space-x-2 animate-pulse'>
+                            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                            <div className="w-2 h-2 delay-100 bg-blue-400 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 delay-200 bg-blue-400 rounded-full animate-bounce"></div>
                         </div>
                     </div>
                 )}
