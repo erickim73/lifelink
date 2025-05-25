@@ -29,6 +29,9 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: "LifeLink - Personalized Medical Advice",
   description: "Your elegant LifeLink application",
+  icons: {
+    icon: "/favicon.ico",
+  },
 }
 
 export default function RootLayout({
