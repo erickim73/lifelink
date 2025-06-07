@@ -3,7 +3,6 @@ import { supabase } from './supabase-client'
 import { Session } from '@supabase/supabase-js';
 import { NewChatMessage, ChatMessage } from '@/app/lib/types';
 
-
 function useChatSession({sessionId}: {sessionId: string}) {
     const [authSession, setAuthSession] = useState<Session | null>(null)    
     const [prompts, setPrompts] = useState<ChatMessage[]>([])
@@ -11,11 +10,13 @@ function useChatSession({sessionId}: {sessionId: string}) {
     const pendingResponseCheckedRef = useRef(false)
     const firstLoadRef = useRef(true)    
     const processingAIResponseRef = useRef(false)
+    const streamingMessageIdRef = useRef<string | null>(null)
 
     useEffect(() => {
         pendingResponseCheckedRef.current = false
         firstLoadRef.current = true
         processingAIResponseRef.current = false
+        streamingMessageIdRef.current = null
     }, [sessionId])
     
     // get auth session on component mount
@@ -39,6 +40,14 @@ function useChatSession({sessionId}: {sessionId: string}) {
             },
             (payload) => {
                 const newMsg = payload.new as ChatMessage
+                
+                // Skip if this is the streaming message we're currently processing
+                if (streamingMessageIdRef.current && 
+                    newMsg.sender === 'model' && 
+                    processingAIResponseRef.current) {
+                    return
+                }
+                
                 setPrompts((prev) => {
                     // Check if the message already exists in our list to avoid duplicates
                     if (!prev.some(msg => msg.message_id === newMsg.message_id)) {
@@ -55,7 +64,7 @@ function useChatSession({sessionId}: {sessionId: string}) {
     }, [sessionId])
 
     // helper function for streaming ai response
-    const streamAIResponse = useCallback(async (res: Response, userId: string): Promise<string> => {
+    const streamAIResponse = useCallback(async (res: Response, userId: string, messageId: string): Promise<string> => {
         if (!res.body) {
             throw new Error('No response body')
         }
@@ -65,6 +74,9 @@ function useChatSession({sessionId}: {sessionId: string}) {
         let streamedContent = ''
         let buffer = ''
 
+        // Store the streaming message ID
+        streamingMessageIdRef.current = messageId
+
         try {
             while (true) {
                 const { value, done } = await reader.read()
@@ -72,6 +84,7 @@ function useChatSession({sessionId}: {sessionId: string}) {
                 if (done) {
                     setIsLoading(false)
                     processingAIResponseRef.current = false
+                    streamingMessageIdRef.current = null
                     break
                 }
 
@@ -89,6 +102,7 @@ function useChatSession({sessionId}: {sessionId: string}) {
                         if (data.trim() === '[DONE]') {
                             setIsLoading(false)
                             processingAIResponseRef.current = false
+                            streamingMessageIdRef.current = null
                             return streamedContent
                         }
                         
@@ -96,28 +110,15 @@ function useChatSession({sessionId}: {sessionId: string}) {
                             streamedContent += data
                             
                             setPrompts((prev) => {
-                                const last = prev[prev.length - 1]
-                                
-                                // Find and update the loading message or latest model message
-                                if (last?.sender === 'model') {
-                                    if (last.content === '...' || !last.content.includes('Error:')) {
-                                        // Replace loading message or update existing model message
-                                        return [...prev.slice(0, -1), {
-                                            ...last, 
+                                return prev.map(msg => {
+                                    if (msg.message_id === messageId) {
+                                        return {
+                                            ...msg,
                                             content: streamedContent.trimStart()
-                                        }]
+                                        }
                                     }
-                                }
-                                
-                                // If no suitable message to update, create new one
-                                return [...prev, {
-                                    message_id: crypto.randomUUID(),
-                                    session_id: sessionId,
-                                    user_id: userId,
-                                    sender: 'model',
-                                    content: streamedContent.trimStart(),
-                                    created_at: new Date().toISOString()
-                                }]
+                                    return msg
+                                })
                             })
                         }
                     }
@@ -127,14 +128,14 @@ function useChatSession({sessionId}: {sessionId: string}) {
             console.error('Streaming error:', error)
             setIsLoading(false)
             processingAIResponseRef.current = false
+            streamingMessageIdRef.current = null
             throw error
         } finally {
             reader.releaseLock()
         }
 
         return streamedContent
-    }, [sessionId])
-
+    }, [])
 
     // Wrapped in useCallback to stabilize between renders
     const initiateAIResponse = useCallback(async (promptContent: string, userId: string) => {
@@ -159,14 +160,36 @@ function useChatSession({sessionId}: {sessionId: string}) {
                 return
             }
 
-            const loadingMsgId = crypto.randomUUID()
+            // Create the model message in database first
+            const initialModelMessage: NewChatMessage = {
+                session_id: sessionId,
+                user_id: userId,
+                sender: 'model',
+                content: '...'
+            }
+            
+            const { data: insertedMsg, error: insertError } = await supabase
+                .from("chat_messages")
+                .insert(initialModelMessage)
+                .select()
+                .single()
+
+            if (insertError) {
+                console.error("Error inserting initial model message:", insertError)
+                processingAIResponseRef.current = false
+                setIsLoading(false)
+                return
+            }
+
+            // Add to local state with the actual database ID
+            const actualMessageId = insertedMsg.message_id
             setPrompts((prev) => [...prev, {
-                message_id: loadingMsgId,
+                message_id: actualMessageId,
                 session_id: sessionId,
                 user_id: userId,
                 sender: 'model',
                 content: '...',
-                created_at: new Date().toISOString()
+                created_at: insertedMsg.created_at
             }])
 
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/stream`, {
@@ -186,23 +209,28 @@ function useChatSession({sessionId}: {sessionId: string}) {
                 throw new Error(`HTTP ${res.status}: ${res.statusText}`)
             }
 
-            const streamedContent = await streamAIResponse(res, userId)
+            const streamedContent = await streamAIResponse(res, userId, actualMessageId)
 
+            // Update the existing message in database with final content
             if (streamedContent.trim()) {
-                const finalModelMessage: NewChatMessage = {
-                    session_id: sessionId,
-                    user_id: authSession.user.id,
-                    sender: 'model',
-                    content: streamedContent.trimStart()
-                }
-                await supabase.from("chat_messages").insert(finalModelMessage)
+                await supabase
+                    .from("chat_messages")
+                    .update({ content: streamedContent.trimStart() })
+                    .eq('message_id', actualMessageId)
             } else {
+                // If no content, remove the placeholder message
+                await supabase
+                    .from("chat_messages")
+                    .delete()
+                    .eq('message_id', actualMessageId)
+                    
+                setPrompts((prev) => prev.filter(msg => msg.message_id !== actualMessageId))
                 processingAIResponseRef.current = false
                 setIsLoading(false)
             } 
         } catch (error) {
             console.error("Error getting response: ", error)
-            // Remove loading message and show error
+            // Show error message
             setPrompts((prev) => {
                 const filtered = prev.filter(msg => msg.content !== '...')
                 return [...filtered, {
@@ -271,25 +299,35 @@ function useChatSession({sessionId}: {sessionId: string}) {
         const user_id = authSession.user.id
 
         try {
-            const userMsgId = crypto.randomUUID()
-            const newUserMessage: ChatMessage = {
-                message_id: userMsgId,
-                session_id: sessionId,
-                user_id: user_id,
-                sender: 'user',
-                content: promptContent,
-                created_at: new Date().toISOString()
-            }
-            
-            setPrompts((p) => [...p, newUserMessage])
-
+            // Insert user message to database first
             const dbUserMessage: NewChatMessage = {
                 session_id: sessionId,
                 user_id: user_id,
                 sender: 'user',
                 content: promptContent
             }
-            await supabase.from("chat_messages").insert(dbUserMessage)
+            
+            const { data: insertedUserMsg, error: userMsgError } = await supabase
+                .from("chat_messages")
+                .insert(dbUserMessage)
+                .select()
+                .single()
+
+            if (userMsgError) {
+                console.error("Error inserting user message:", userMsgError)
+                setIsLoading(false)
+                return
+            }
+
+            // Add to local state
+            setPrompts((p) => [...p, {
+                message_id: insertedUserMsg.message_id,
+                session_id: sessionId,
+                user_id: user_id,
+                sender: 'user',
+                content: promptContent,
+                created_at: insertedUserMsg.created_at
+            }])
 
             const { data: profileData, error: profileError } = await supabase
                 .from('profiles')
@@ -305,14 +343,36 @@ function useChatSession({sessionId}: {sessionId: string}) {
 
             processingAIResponseRef.current = true
 
-            const loadingMsgId = crypto.randomUUID()
+            // Create model message in database first
+            const initialModelMessage: NewChatMessage = {
+                session_id: sessionId,
+                user_id: user_id,
+                sender: 'model',
+                content: '...'
+            }
+            
+            const { data: insertedModelMsg, error: modelMsgError } = await supabase
+                .from("chat_messages")
+                .insert(initialModelMessage)
+                .select()
+                .single()
+
+            if (modelMsgError) {
+                console.error("Error inserting model message:", modelMsgError)
+                setIsLoading(false)
+                processingAIResponseRef.current = false
+                return
+            }
+
+            // Add to local state
+            const actualMessageId = insertedModelMsg.message_id
             setPrompts((prev) => [...prev, {
-                message_id: loadingMsgId,
+                message_id: actualMessageId,
                 session_id: sessionId,
                 user_id: user_id,
                 sender: 'model',
                 content: '...',
-                created_at: new Date().toISOString()
+                created_at: insertedModelMsg.created_at
             }])
 
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/stream`, {
@@ -333,17 +393,22 @@ function useChatSession({sessionId}: {sessionId: string}) {
                 throw new Error(`HTTP ${res.status}: ${res.statusText}`)
             }
 
-            const streamedContent = await streamAIResponse(res, user_id)
+            const streamedContent = await streamAIResponse(res, user_id, actualMessageId)
 
+            // Update the existing message in database with final content
             if (streamedContent.trim()) {
-                const finalModelMessage: NewChatMessage = {
-                    session_id: sessionId,
-                    user_id: authSession.user.id,
-                    sender: 'model',
-                    content: streamedContent.trimStart()    
-                }
-                await supabase.from("chat_messages").insert(finalModelMessage)
+                await supabase
+                    .from("chat_messages")
+                    .update({ content: streamedContent.trimStart() })
+                    .eq('message_id', actualMessageId)
             } else {
+                // If no content, remove the placeholder message
+                await supabase
+                    .from("chat_messages")
+                    .delete()
+                    .eq('message_id', actualMessageId)
+                    
+                setPrompts((prev) => prev.filter(msg => msg.message_id !== actualMessageId))
                 processingAIResponseRef.current = false
                 setIsLoading(false)
             }
