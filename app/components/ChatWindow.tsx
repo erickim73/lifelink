@@ -10,11 +10,8 @@ type Props = {
     endRef: React.RefObject<HTMLDivElement | null>
 }
 
-
-
 const ChatWindow = ({prompts, isLoading, endRef}: Props) => {
     const { isMobile } = useSidebar()
-
 
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -35,67 +32,87 @@ const ChatWindow = ({prompts, isLoading, endRef}: Props) => {
             return null
         }
         
-        const formattedText = text
-            .replace(/^\s+|\s+$/g, "") // trim leading / trailing whitespace
-            .replace(/\r\n/g, "\n") // normalise line endings
-            .replace(/(\d+\.)(\S)/g, "$1 $2") // ensure space after list number
-            .replace(/(\d+\.)\s*\n+/g, "$1 ") // keep list number on same line
-            .replace(/\n{3,}/g, "\n\n") // collapse 3+ newlines → exactly 2
+        // More aggressive approach to handle your specific formatting issue
+        let formattedText = text
+            .replace(/^\s+|\s+$/g, "")         // trim leading / trailing whitespace
+            .replace(/\r\n/g, "\n")            // normalise line endings
+        
+        // Key fix: Insert double newlines before numbered list items that don't already have them
+        formattedText = formattedText.replace(/([^.\n])(\d+\.\s+)/g, '$1\n\n$2')
+        
+        // Also handle cases where numbered items are directly after punctuation
+        formattedText = formattedText.replace(/([.!?])(\d+\.\s+)/g, '$1\n\n$2')
+        
+        // Clean up any triple+ newlines
+        formattedText = formattedText.replace(/\n{3,}/g, '\n\n')
 
-        if (formattedText.includes("\n")) {
-            const paragraphs = formattedText.split("\n\n")
+        // Split into sections
+        const sections = formattedText.split('\n\n').filter(section => section.trim().length > 0)
 
-            return paragraphs.map((paragraph, index) => {
-                // Check if paragraph is a numbered list item
-                if (/^\d+\.\s/.test(paragraph)) {
-                    // Format numbered list items with bold numbers and text up to colon
-                    const listMatch = paragraph.match(/^(\d+\.\s)([^:]+)(:?.*)$/)
-                    if (listMatch) {
-                        const [, number, beforeColon, afterColon] = listMatch
+        return sections.map((section, sectionIndex) => {
+            const trimmedSection = section.trim()
+            
+            // Check if this section starts with a numbered list item
+            if (/^\d+\.\s/.test(trimmedSection)) {
+                // This is a numbered list item
+                const match = trimmedSection.match(/^(\d+\.\s+)(.*)$/s)
+                if (match) {
+                    const [, number, content] = match
+                    
+                    // Handle bullet points within the numbered item
+                    if (content.includes('- ')) {
+                        const parts = content.split(/(?=- )/);
+                        const mainContent = parts[0].trim()
+                        const bulletItems = parts.slice(1)
+                        
                         return (
-                            <div key={index} className="mb-4">
-                                <span className="font-bold">{number}{beforeColon}</span>
-                                <span>{afterColon}</span>
+                            <div key={sectionIndex} className={sectionIndex < sections.length - 1 ? "mb-6" : ""}>
+                                <div className="mb-3">
+                                    <span className="font-bold text-blue-400">{number}</span>
+                                    <span className="font-semibold">{mainContent}</span>
+                                </div>
+                                {bulletItems.length > 0 && (
+                                    <div className="ml-6 space-y-2">
+                                        {bulletItems.map((item, itemIndex) => (
+                                            <div key={itemIndex} className="flex">
+                                                <span className="mr-2 text-blue-300">•</span>
+                                                <span>{item.replace(/^-\s*/, '').trim()}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )
                     } else {
-                        // If no colon, just bold the number
-                        const match = paragraph.match(/^\d+\./)
-                        if (!match) return null
-                        const number = match[0]
-                        const content = paragraph.replace(/^\d+\.\s/, "")
-
+                        // Simple numbered item without bullet points
                         return (
-                            <div key={index} className="mb-4">
-                                <span className="font-bold">{number} </span>
+                            <div key={sectionIndex} className={sectionIndex < sections.length - 1 ? "mb-4" : ""}>
+                                <span className="font-bold text-blue-400">{number}</span>
                                 <span>{content}</span>
                             </div>
                         )
                     }
                 }
-                // Check if paragraph starts with a dash (bullet point)
-                else if (paragraph.startsWith("- ")) {
-                    return (
-                        <div key={index} className="flex mb-4">
-                            <span className="mr-2 font-bold">•</span>
-                            <span>{paragraph.substring(2)}</span>
-                        </div>
-                    )
-                }
-                // Regular paragraph
-                else {
-                    return (
-                        <p key={index} className="mb-4 leading-relaxed">
-                            {paragraph}
-                        </p>
-                    )
-                }
-            })
-        }
-
-        return formattedText
+            }
+            
+            // Handle standalone bullet points
+            if (trimmedSection.startsWith("- ")) {
+                return (
+                    <div key={sectionIndex} className={`flex ${sectionIndex < sections.length - 1 ? "mb-4" : ""}`}>
+                        <span className="mr-2 font-bold text-blue-300">•</span>
+                        <span>{trimmedSection.substring(2)}</span>
+                    </div>
+                )
+            }
+            
+            // Regular paragraph
+            return (
+                <p key={sectionIndex} className={`leading-relaxed ${sectionIndex < sections.length - 1 ? "mb-4" : ""}`}>
+                    {trimmedSection}
+                </p>
+            )
+        })
     }
-
 
     return (
         <div className="w-full h-full overflow-y-auto bg-zinc-900">

@@ -130,61 +130,49 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         const now = new Date()
         const yesterday = new Date(now)
         yesterday.setDate(yesterday.getDate() - 1)
-        const sevenDays = new Date(now)
-        sevenDays.setDate(sevenDays.getDate() - 7)
-        const thirtyDays = new Date(now)
-        thirtyDays.setDate(thirtyDays.getDate() - 30)
+
+        // Reset time to start of day for accurate comparison
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+        const startOfSessionDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
 
         // if today, show time only
-        if (date.toDateString() === now.toDateString()) {
+        if (startOfSessionDate.getTime() === startOfToday.getTime()) {
             return `Today at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
         } 
 
-        // if yesterday, show yesterday
+        // if yesterday, show time
         if (date.toDateString() === yesterday.toDateString()) {
             return `Yesterday at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
         }
 
-        // if past 7 days, show Previous 7 Days
-        if (date.toDateString() === sevenDays.toDateString()) {
-            return date.toLocaleDateString([], { month: "short", day: "numeric" })
-        }
-
-        // if past 30 days, show Previous 30 Days
-        if (date.toDateString() === thirtyDays.toDateString()) {
-            return date.toLocaleDateString([], { month: "short", day: "numeric" })
-        }
-
-        // otherwise, show full date
-        return date.toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" })
+        // for older dates, show date
+        return date.toLocaleDateString([], { month: "short", day: "numeric" })
     }
 
     // group chat sessions by date
-    const today = new Date().toDateString()
-
-    const yesterday = new Date()
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const yesterday = new Date(today)
     yesterday.setDate(yesterday.getDate() - 1)
-    const yesterdayString = yesterday.toDateString()
-
-    const sevenDays = new Date()
-    sevenDays.setDate(sevenDays.getDate() - 7)
-
-    const thirtyDays = new Date()
-    thirtyDays.setDate(thirtyDays.getDate() - 30)
+    const sevenDaysAgo = new Date(today)
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    const thirtyDaysAgo = new Date(today)
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
     const groupedSessions = chatSessionIds.reduce((groups, session) => {
         const sessionDate = new Date(session.updated_at)
+        const sessionDateOnly = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate())
     
-        if (sessionDate.toDateString() === today) {
+        if (sessionDateOnly.getTime() === today.getTime()) {
             if (!groups.today) groups.today = []
             groups.today.push(session)
-        } else if (sessionDate.toDateString() === yesterdayString) {
+        } else if (sessionDateOnly.getTime() === yesterday.getTime()) {
             if (!groups.yesterday) groups.yesterday = []
             groups.yesterday.push(session)
-        } else if (sessionDate > sevenDays && sessionDate < yesterday) {
+        } else if (sessionDateOnly >= sevenDaysAgo && sessionDateOnly < yesterday) {
             if (!groups.sevenDays) groups.sevenDays = []
             groups.sevenDays.push(session)
-        } else if (sessionDate > thirtyDays && sessionDate <= sevenDays) {
+        } else if (sessionDateOnly >= thirtyDaysAgo && sessionDateOnly < sevenDaysAgo) {
             if (!groups.thirtyDays) groups.thirtyDays = []
             groups.thirtyDays.push(session)
         } else {
