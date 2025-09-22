@@ -7,7 +7,7 @@
   
   **Personalized health insights for a balanced life**
   
-  [Website Link](https://lifelink-app.vercel.app/) | [Getting Started](#getting-started) | [Backend Repo](https://github.com/erickim73/lifelink_backend)
+  [Website Link](https://lifelink-app.vercel.app/) | [Getting Started](#getting-started)
 </div>
 
 ---
@@ -67,8 +67,8 @@ LifeLink is an AI-powered health companion that provides personalized health rec
 
 ```bash
 # Clone the repository
-git clone https://github.com/erickim73/lifelink_frontend.git
-cd lifelink_frontend
+git clone https://github.com/erickim73/lifelink.git
+cd lifelink/frontend
 
 # Install dependencies
 npm install
@@ -81,8 +81,7 @@ npm run dev
 
 ```bash
 # Clone the backend repository
-git clone https://github.com/erickim73/lifelink_backend.git
-cd backend
+cd lifelink/backend
 
 # Create and activate virtual environment
 python -m venv venv
