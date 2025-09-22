@@ -21,9 +21,10 @@ const SignUp = () => {
         setFormSubmitted(true)
         setError(null)
         setLoading(true)
-
+        
         try {
             const {data, error: signupError} = await supabase.auth.signUp({email, password})
+            console.log("SignUp Data:", data)
             if (signupError) {
                 setError(signupError.message)
                 return 
